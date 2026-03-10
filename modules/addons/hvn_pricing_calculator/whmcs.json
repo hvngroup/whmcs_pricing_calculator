@@ -1,0 +1,29 @@
+{
+    "schema": "1.0",
+    "type": "whmcs-addons",
+    "name": "hvn-pricing-calculator",
+    "license": "proprietary",
+    "category": "utilities",
+    "description": {
+        "name": "HVN Pricing Calculator",
+        "tagline": "Auto-calculate billing cycle pricing and currency conversion for Products, Configurable Options and Addons.",
+        "long": "HVN Pricing Calculator automatically computes pricing across all billing cycles (Monthly through Triennially) with configurable discounts, and converts between currencies using WHMCS exchange rates. Includes inline Configurable Options manager, discount presets, and overwrite protection."
+    },
+    "logo": {
+        "filename": "logo.png"
+    },
+    "support": {
+        "homepage": "https://hvn.vn",
+        "docs_url": "https://hvn.vn/docs/pricing-calculator",
+        "email": "support@hvn.vn"
+    },
+    "authors": [
+        {
+            "name": "HVN GROUP",
+            "homepage": "https://hvn.vn"
+        }
+    ],
+    "min_whmcs_version": "8.0.0",
+    "max_whmcs_version": "9.99.99",
+    "min_php_version": "8.1.0"
+}

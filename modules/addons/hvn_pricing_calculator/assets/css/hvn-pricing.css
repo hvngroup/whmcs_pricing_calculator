@@ -1,0 +1,906 @@
+/* ============================================================
+   HVN Pricing Calculator v1.0.0
+   Ant Design–inspired theme. Pure CSS, no external framework.
+   ============================================================ */
+
+/* --- Design Tokens (Ant Design palette) --- */
+:root {
+    --hvn-blue: #1677ff;
+    --hvn-blue-hover: #4096ff;
+    --hvn-blue-active: #0958d9;
+    --hvn-blue-bg: #e6f4ff;
+    --hvn-blue-border: #91caff;
+    --hvn-green: #52c41a;
+    --hvn-green-hover: #73d13d;
+    --hvn-green-active: #389e0d;
+    --hvn-green-bg: #f6ffed;
+    --hvn-red: #ff4d4f;
+    --hvn-red-hover: #ff7875;
+    --hvn-gold: #faad14;
+    --hvn-gold-bg: #fffbe6;
+    --hvn-gold-border: #ffe58f;
+
+    --hvn-text: rgba(0, 0, 0, 0.88);
+    --hvn-text-secondary: rgba(0, 0, 0, 0.65);
+    --hvn-text-tertiary: rgba(0, 0, 0, 0.45);
+    --hvn-text-quaternary: rgba(0, 0, 0, 0.25);
+
+    --hvn-bg: #ffffff;
+    --hvn-bg-layout: #f5f5f5;
+    --hvn-bg-elevated: #ffffff;
+    --hvn-bg-spotlight: #f0f5ff;
+
+    --hvn-border: #d9d9d9;
+    --hvn-border-light: #f0f0f0;
+    --hvn-border-active: #1677ff;
+
+    --hvn-radius: 8px;
+    --hvn-radius-sm: 6px;
+    --hvn-radius-lg: 12px;
+
+    --hvn-shadow-sm: 0 1px 2px 0 rgba(0,0,0,0.03), 0 1px 6px -1px rgba(0,0,0,0.02), 0 2px 4px 0 rgba(0,0,0,0.02);
+    --hvn-shadow: 0 6px 16px 0 rgba(0,0,0,0.08), 0 3px 6px -4px rgba(0,0,0,0.12), 0 9px 28px 8px rgba(0,0,0,0.05);
+    --hvn-shadow-lg: 0 6px 16px 0 rgba(0,0,0,0.08), 0 3px 6px -4px rgba(0,0,0,0.12), 0 9px 28px 8px rgba(0,0,0,0.05);
+
+    --hvn-font: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    --hvn-font-sm: 12px;
+    --hvn-font-base: 14px;
+    --hvn-font-xs: 11px;
+
+    --hvn-line-height: 1.5714;
+    --hvn-transition: all 0.2s cubic-bezier(0.645, 0.045, 0.355, 1);
+}
+
+/* --- Toolbar Container --- */
+.hvn-toolbar {
+    font-family: var(--hvn-font);
+    background: var(--hvn-bg);
+    border: 1px solid var(--hvn-border-light);
+    border-radius: var(--hvn-radius-lg);
+    padding: 16px 20px;
+    margin-bottom: 16px;
+    box-shadow: var(--hvn-shadow-sm);
+    font-size: var(--hvn-font-base);
+    line-height: var(--hvn-line-height);
+    color: var(--hvn-text);
+}
+
+.hvn-toolbar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--hvn-border-light);
+}
+
+.hvn-toolbar-title {
+    font-weight: 600;
+    font-size: 16px;
+    color: var(--hvn-text);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.hvn-toolbar-title::before {
+    content: '';
+    display: inline-block;
+    width: 4px;
+    height: 18px;
+    background: var(--hvn-blue);
+    border-radius: 2px;
+}
+
+/* --- Toolbar Rows --- */
+.hvn-toolbar-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 12px;
+}
+
+.hvn-toolbar-row:last-child {
+    margin-bottom: 0;
+}
+
+/* --- Form Groups --- */
+.hvn-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.hvn-group label {
+    font-weight: 500;
+    font-size: var(--hvn-font-sm);
+    color: var(--hvn-text-secondary);
+    margin: 0;
+    white-space: nowrap;
+}
+
+/* --- Inputs (Ant Design style) --- */
+.hvn-select,
+.hvn-input {
+    height: 32px;
+    padding: 4px 12px;
+    font-size: var(--hvn-font-base);
+    font-family: var(--hvn-font);
+    border: 1px solid var(--hvn-border);
+    border-radius: var(--hvn-radius-sm);
+    background: var(--hvn-bg);
+    color: var(--hvn-text);
+    outline: none;
+    transition: var(--hvn-transition);
+}
+
+.hvn-select:hover,
+.hvn-input:hover {
+    border-color: var(--hvn-blue-hover);
+}
+
+.hvn-select:focus,
+.hvn-input:focus {
+    border-color: var(--hvn-blue);
+    box-shadow: 0 0 0 2px rgba(22, 119, 255, 0.1);
+}
+
+.hvn-select {
+    min-width: 100px;
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M2.5 4.5L6 8l3.5-3.5' fill='none' stroke='%23999' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 8px center;
+    padding-right: 28px;
+}
+
+.hvn-input--num {
+    width: 56px;
+    text-align: center;
+    padding: 4px 6px;
+}
+
+/* --- Discount Row --- */
+.hvn-discounts {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.hvn-discounts > label {
+    font-weight: 500;
+    font-size: var(--hvn-font-sm);
+    color: var(--hvn-text-secondary);
+}
+
+.hvn-discount {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: var(--hvn-bg-layout);
+    border: 1px solid var(--hvn-border-light);
+    border-radius: var(--hvn-radius-sm);
+    padding: 2px 8px 2px 10px;
+    transition: var(--hvn-transition);
+}
+
+.hvn-discount:hover {
+    border-color: var(--hvn-blue-border);
+    background: var(--hvn-blue-bg);
+}
+
+.hvn-discount label {
+    font-weight: 600;
+    font-size: var(--hvn-font-xs);
+    color: var(--hvn-text-tertiary);
+    min-width: 20px;
+    text-align: right;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.hvn-discount input {
+    width: 48px;
+    height: 26px;
+    text-align: center;
+    font-size: var(--hvn-font-sm);
+    font-family: var(--hvn-font);
+    padding: 2px 4px;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    background: var(--hvn-bg);
+    color: var(--hvn-text);
+    outline: none;
+    transition: var(--hvn-transition);
+}
+
+.hvn-discount input:focus {
+    border-color: var(--hvn-blue);
+    box-shadow: 0 0 0 2px rgba(22, 119, 255, 0.1);
+}
+
+.hvn-pct {
+    font-size: var(--hvn-font-xs);
+    color: var(--hvn-text-quaternary);
+    font-weight: 500;
+}
+
+/* --- Toggle / Switch style --- */
+.hvn-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 12px;
+    border: 1px solid var(--hvn-border);
+    border-radius: var(--hvn-radius-sm);
+    background: var(--hvn-bg);
+    cursor: pointer;
+    font-size: var(--hvn-font-sm);
+    color: var(--hvn-text-secondary);
+    user-select: none;
+    transition: var(--hvn-transition);
+    height: 32px;
+}
+
+.hvn-toggle:hover {
+    border-color: var(--hvn-blue-hover);
+    color: var(--hvn-blue);
+}
+
+.hvn-toggle input[type="checkbox"] {
+    position: relative;
+    width: 28px;
+    height: 16px;
+    appearance: none;
+    background: var(--hvn-text-quaternary);
+    border-radius: 100px;
+    cursor: pointer;
+    transition: var(--hvn-transition);
+    margin: 0;
+}
+
+.hvn-toggle input[type="checkbox"]::after {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 12px;
+    height: 12px;
+    background: white;
+    border-radius: 50%;
+    transition: var(--hvn-transition);
+}
+
+.hvn-toggle input[type="checkbox"]:checked {
+    background: var(--hvn-blue);
+}
+
+.hvn-toggle input[type="checkbox"]:checked::after {
+    left: 14px;
+}
+
+/* --- Buttons (Ant Design) --- */
+.hvn-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.hvn-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 4px 16px;
+    height: 32px;
+    font-size: var(--hvn-font-base);
+    font-weight: 500;
+    font-family: var(--hvn-font);
+    border: 1px solid transparent;
+    border-radius: var(--hvn-radius-sm);
+    cursor: pointer;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: var(--hvn-transition);
+    line-height: 1;
+}
+
+.hvn-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.hvn-btn--primary {
+    background: var(--hvn-blue);
+    color: #fff;
+    border-color: var(--hvn-blue);
+    box-shadow: 0 2px 0 rgba(22, 119, 255, 0.1);
+}
+.hvn-btn--primary:hover:not(:disabled) {
+    background: var(--hvn-blue-hover);
+    border-color: var(--hvn-blue-hover);
+}
+.hvn-btn--primary:active:not(:disabled) {
+    background: var(--hvn-blue-active);
+    border-color: var(--hvn-blue-active);
+}
+
+.hvn-btn--success {
+    background: var(--hvn-green);
+    color: #fff;
+    border-color: var(--hvn-green);
+    box-shadow: 0 2px 0 rgba(82, 196, 26, 0.1);
+}
+.hvn-btn--success:hover:not(:disabled) {
+    background: var(--hvn-green-hover);
+    border-color: var(--hvn-green-hover);
+}
+.hvn-btn--success:active:not(:disabled) {
+    background: var(--hvn-green-active);
+    border-color: var(--hvn-green-active);
+}
+
+.hvn-btn--default {
+    background: var(--hvn-bg);
+    color: var(--hvn-text);
+    border-color: var(--hvn-border);
+    box-shadow: 0 2px 0 rgba(0, 0, 0, 0.02);
+}
+.hvn-btn--default:hover:not(:disabled) {
+    color: var(--hvn-blue);
+    border-color: var(--hvn-blue);
+}
+
+.hvn-btn--danger {
+    background: var(--hvn-bg);
+    color: var(--hvn-red);
+    border-color: var(--hvn-red);
+}
+.hvn-btn--danger:hover:not(:disabled) {
+    background: #fff1f0;
+    color: var(--hvn-red-hover);
+    border-color: var(--hvn-red-hover);
+}
+
+.hvn-btn--text {
+    background: transparent;
+    color: var(--hvn-blue);
+    border: none;
+    padding: 4px 8px;
+    box-shadow: none;
+}
+.hvn-btn--text:hover:not(:disabled) {
+    background: rgba(0,0,0,0.04);
+}
+
+.hvn-btn--xs {
+    padding: 0 8px;
+    height: 24px;
+    font-size: var(--hvn-font-sm);
+    border-radius: 4px;
+}
+
+.hvn-btn--sm {
+    padding: 0 12px;
+    height: 28px;
+    font-size: var(--hvn-font-sm);
+}
+
+.hvn-btn--lg {
+    padding: 4px 20px;
+    height: 40px;
+    font-size: 16px;
+    border-radius: var(--hvn-radius);
+}
+
+/* --- Currency Info Bar --- */
+.hvn-currency-info {
+    font-size: var(--hvn-font-sm);
+    color: var(--hvn-text-tertiary);
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid var(--hvn-border-light);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    align-items: center;
+}
+
+.hvn-rate {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 8px;
+    background: var(--hvn-bg-layout);
+    border-radius: 4px;
+    font-size: var(--hvn-font-xs);
+    color: var(--hvn-text-secondary);
+    margin-right: 4px;
+}
+
+.hvn-rate--default {
+    background: var(--hvn-blue-bg);
+    color: var(--hvn-blue);
+    font-weight: 600;
+}
+
+/* --- Cell States --- */
+.hvn-changed {
+    background-color: var(--hvn-green-bg) !important;
+    transition: background-color 3s ease;
+}
+
+.hvn-cell-disabled {
+    background-color: var(--hvn-bg-layout) !important;
+    color: var(--hvn-text-quaternary) !important;
+}
+
+/* --- Toast Notifications (Ant Design message style) --- */
+.hvn-toast-container {
+    position: fixed;
+    top: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    pointer-events: none;
+}
+
+.hvn-toast {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 12px;
+    border-radius: var(--hvn-radius);
+    font-size: var(--hvn-font-base);
+    font-family: var(--hvn-font);
+    background: var(--hvn-bg);
+    box-shadow: var(--hvn-shadow);
+    opacity: 0;
+    transform: translateY(-8px);
+    transition: all 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
+    pointer-events: auto;
+}
+
+.hvn-toast--visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.hvn-toast--success::before { content: '✓'; color: var(--hvn-green); font-weight: 700; font-size: 16px; }
+.hvn-toast--error::before { content: '✕'; color: var(--hvn-red); font-weight: 700; font-size: 16px; }
+.hvn-toast--info::before { content: 'ℹ'; color: var(--hvn-blue); font-weight: 700; font-size: 16px; }
+.hvn-toast--warning::before { content: '⚠'; color: var(--hvn-gold); font-weight: 700; font-size: 16px; }
+
+/* --- Config Options Manager --- */
+.hvn-config-mgr {
+    font-family: var(--hvn-font);
+    background: var(--hvn-bg);
+    border: 1px solid var(--hvn-border-light);
+    border-radius: var(--hvn-radius-lg);
+    padding: 20px;
+    margin-top: 16px;
+    box-shadow: var(--hvn-shadow-sm);
+}
+
+.hvn-config-mgr__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--hvn-border-light);
+}
+
+.hvn-config-mgr__title {
+    font-weight: 600;
+    font-size: 16px;
+    color: var(--hvn-text);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.hvn-config-mgr__title::before {
+    content: '';
+    display: inline-block;
+    width: 4px;
+    height: 18px;
+    background: var(--hvn-blue);
+    border-radius: 2px;
+}
+
+/* --- Currency Tabs (Ant Design segmented) --- */
+.hvn-tabs {
+    display: inline-flex;
+    background: var(--hvn-bg-layout);
+    border-radius: var(--hvn-radius-sm);
+    padding: 2px;
+    margin-bottom: 16px;
+    gap: 0;
+    border: none;
+}
+
+.hvn-tab {
+    padding: 5px 16px;
+    font-size: var(--hvn-font-sm);
+    font-weight: 500;
+    font-family: var(--hvn-font);
+    cursor: pointer;
+    border: none;
+    background: transparent;
+    color: var(--hvn-text-secondary);
+    border-radius: 4px;
+    transition: var(--hvn-transition);
+    margin: 0;
+}
+
+.hvn-tab:hover {
+    color: var(--hvn-text);
+}
+
+.hvn-tab--active {
+    background: var(--hvn-bg);
+    color: var(--hvn-text);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.1);
+    font-weight: 600;
+}
+
+/* --- Option Group Panel (Ant Collapse) --- */
+.hvn-optgroup {
+    border: 1px solid var(--hvn-border-light);
+    border-radius: var(--hvn-radius);
+    margin-bottom: 12px;
+    overflow: hidden;
+}
+
+.hvn-optgroup__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    background: var(--hvn-bg-layout);
+    cursor: pointer;
+    transition: var(--hvn-transition);
+}
+
+.hvn-optgroup__header:hover {
+    background: #e8e8e8;
+}
+
+.hvn-optgroup__title {
+    font-weight: 600;
+    font-size: var(--hvn-font-base);
+    color: var(--hvn-text);
+}
+
+.hvn-optgroup__meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: var(--hvn-font-sm);
+    color: var(--hvn-text-tertiary);
+}
+
+.hvn-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0 8px;
+    height: 22px;
+    border-radius: 100px;
+    font-size: var(--hvn-font-xs);
+    font-weight: 500;
+    line-height: 1;
+}
+
+.hvn-badge--shared {
+    background: var(--hvn-gold-bg);
+    border: 1px solid var(--hvn-gold-border);
+    color: #ad6800;
+}
+
+.hvn-optgroup__body {
+    padding: 16px;
+}
+
+/* --- Pricing Table (Ant Table style) --- */
+.hvn-ptable {
+    width: 100%;
+    font-size: var(--hvn-font-sm);
+    font-family: var(--hvn-font);
+    border-collapse: separate;
+    border-spacing: 0;
+    border: 1px solid var(--hvn-border-light);
+    border-radius: var(--hvn-radius);
+    overflow: hidden;
+}
+
+.hvn-ptable th {
+    background: #fafafa;
+    font-weight: 600;
+    font-size: var(--hvn-font-xs);
+    color: var(--hvn-text-secondary);
+    padding: 8px 8px;
+    text-align: center;
+    border-bottom: 1px solid var(--hvn-border-light);
+    white-space: nowrap;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.hvn-ptable th:first-child {
+    text-align: left;
+    padding-left: 12px;
+}
+
+.hvn-ptable td {
+    padding: 6px 6px;
+    border-bottom: 1px solid var(--hvn-border-light);
+    text-align: center;
+    transition: background 0.15s;
+}
+
+.hvn-ptable tr:last-child td {
+    border-bottom: none;
+}
+
+.hvn-ptable tr:hover td {
+    background: #fafafa;
+}
+
+.hvn-ptable td:first-child {
+    text-align: left;
+    font-weight: 500;
+    white-space: nowrap;
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding-left: 12px;
+    color: var(--hvn-text);
+}
+
+.hvn-ptable input[type="text"],
+.hvn-config-input {
+    width: 76px;
+    height: 28px;
+    text-align: right;
+    font-size: var(--hvn-font-sm);
+    font-family: var(--hvn-font);
+    padding: 4px 8px;
+    border: 1px solid var(--hvn-border);
+    border-radius: 4px;
+    background: var(--hvn-bg);
+    color: var(--hvn-text);
+    outline: none;
+    transition: var(--hvn-transition);
+}
+
+.hvn-ptable input:focus,
+.hvn-config-input:focus {
+    border-color: var(--hvn-blue);
+    box-shadow: 0 0 0 2px rgba(22, 119, 255, 0.1);
+}
+
+/* --- Quick Create (Ant Empty state) --- */
+.hvn-quick-create {
+    background: var(--hvn-bg-layout);
+    border: 1px dashed var(--hvn-border);
+    border-radius: var(--hvn-radius-lg);
+    padding: 32px;
+    text-align: center;
+}
+
+.hvn-quick-create p {
+    color: var(--hvn-text-tertiary);
+    margin-bottom: 20px;
+    font-size: var(--hvn-font-base);
+}
+
+.hvn-quick-create__form {
+    display: inline-flex;
+    flex-direction: column;
+    gap: 12px;
+    text-align: left;
+    min-width: 360px;
+}
+
+.hvn-quick-create__form label {
+    font-weight: 600;
+    font-size: var(--hvn-font-base);
+    color: var(--hvn-text);
+}
+
+.hvn-quick-create__form input[type="text"] {
+    height: 36px;
+    padding: 4px 12px;
+    border: 1px solid var(--hvn-border);
+    border-radius: var(--hvn-radius-sm);
+    font-size: var(--hvn-font-base);
+    font-family: var(--hvn-font);
+    width: 100%;
+    transition: var(--hvn-transition);
+}
+
+.hvn-quick-create__form input[type="text"]:focus {
+    border-color: var(--hvn-blue);
+    box-shadow: 0 0 0 2px rgba(22, 119, 255, 0.1);
+    outline: none;
+}
+
+.hvn-divider {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    color: var(--hvn-text-quaternary);
+    margin: 16px 0;
+    font-size: var(--hvn-font-sm);
+}
+
+.hvn-divider::before,
+.hvn-divider::after {
+    content: '';
+    flex: 1;
+    border-top: 1px solid var(--hvn-border-light);
+}
+
+/* --- Preset Table (Ant Table) --- */
+.hvn-preset-table {
+    width: 100%;
+    font-family: var(--hvn-font);
+    font-size: var(--hvn-font-sm);
+    border-collapse: separate;
+    border-spacing: 0;
+    border: 1px solid var(--hvn-border-light);
+    border-radius: var(--hvn-radius);
+    overflow: hidden;
+}
+
+.hvn-preset-table th {
+    background: #fafafa;
+    font-weight: 600;
+    font-size: var(--hvn-font-xs);
+    color: var(--hvn-text-secondary);
+    padding: 10px 12px;
+    text-align: center;
+    border-bottom: 1px solid var(--hvn-border-light);
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.hvn-preset-table td {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--hvn-border-light);
+    text-align: center;
+    color: var(--hvn-text);
+}
+
+.hvn-preset-table tr:last-child td {
+    border-bottom: none;
+}
+
+.hvn-preset-table tr:hover td {
+    background: #fafafa;
+}
+
+.hvn-preset-table td:first-child {
+    text-align: left;
+    font-weight: 500;
+}
+
+/* --- Loading Spinner (Ant spin) --- */
+.hvn-spinner {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 2px solid var(--hvn-border-light);
+    border-top-color: var(--hvn-blue);
+    border-radius: 50%;
+    animation: hvn-spin 0.8s linear infinite;
+}
+
+@keyframes hvn-spin {
+    to { transform: rotate(360deg); }
+}
+
+/* --- Card (for admin dashboard) --- */
+.hvn-card {
+    font-family: var(--hvn-font);
+    background: var(--hvn-bg);
+    border: 1px solid var(--hvn-border-light);
+    border-radius: var(--hvn-radius-lg);
+    box-shadow: var(--hvn-shadow-sm);
+    overflow: hidden;
+}
+
+.hvn-card__header {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--hvn-border-light);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.hvn-card__title {
+    font-weight: 600;
+    font-size: 16px;
+    color: var(--hvn-text);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.hvn-card__body {
+    padding: 20px;
+}
+
+/* --- Statistic (Ant Statistic) --- */
+.hvn-stat {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 12px 0;
+}
+
+.hvn-stat__label {
+    font-size: var(--hvn-font-sm);
+    color: var(--hvn-text-tertiary);
+}
+
+.hvn-stat__value {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--hvn-text);
+}
+
+.hvn-stat__extra {
+    font-size: var(--hvn-font-sm);
+    color: var(--hvn-text-tertiary);
+}
+
+/* --- Tag (for default badge in preset table) --- */
+.hvn-tag {
+    display: inline-flex;
+    align-items: center;
+    padding: 0 8px;
+    height: 22px;
+    border-radius: 4px;
+    font-size: var(--hvn-font-xs);
+    font-weight: 500;
+    line-height: 1;
+}
+
+.hvn-tag--blue {
+    background: var(--hvn-blue-bg);
+    border: 1px solid var(--hvn-blue-border);
+    color: var(--hvn-blue);
+}
+
+.hvn-tag--green {
+    background: var(--hvn-green-bg);
+    border: 1px solid #b7eb8f;
+    color: var(--hvn-green-active);
+}
+
+/* --- Utility --- */
+.hvn-mt-8 { margin-top: 8px; }
+.hvn-mt-12 { margin-top: 12px; }
+.hvn-mt-16 { margin-top: 16px; }
+.hvn-mb-8 { margin-bottom: 8px; }
+.hvn-mb-16 { margin-bottom: 16px; }
+.hvn-text-muted { color: var(--hvn-text-tertiary); }
+.hvn-text-sm { font-size: var(--hvn-font-sm); }
+.hvn-text-xs { font-size: var(--hvn-font-xs); }
+.hvn-hidden { display: none !important; }
+
+/* --- Responsive --- */
+@media (max-width: 992px) {
+    .hvn-toolbar-row { gap: 10px; }
+    .hvn-discount input { width: 42px; }
+    .hvn-ptable input, .hvn-config-input { width: 65px; }
+    .hvn-quick-create__form { min-width: auto; width: 100%; }
+}
