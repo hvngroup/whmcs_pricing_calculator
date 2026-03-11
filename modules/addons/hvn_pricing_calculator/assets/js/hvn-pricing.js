@@ -306,7 +306,7 @@
             rounding: CFG.defaultRounding || 'round',
             roundTo: CFG.defaultRoundTo || 1,
             overwrite: true,
-            presetId: dp ? dp.id : '',
+            presetId: dp ? String(dp.id) : '',
             presets: CFG.presets || [],
             currencies: CFG.currencies || [],
             showRates: CFG.showRates,
@@ -324,7 +324,7 @@
             cQ: ec.quarterly, cSA: ec.semiannually, cA: ec.annually, cBi: ec.biennially, cTri: ec.triennially,
 
             loadPreset: function () {
-                var s = this, p = this.presets.find(function (x) { return x.id == s.presetId; });
+                var s = this, p = this.presets.find(function (x) { return String(x.id) === String(s.presetId); });
                 if (!p) return;
                 this.dQ=+p.discount_quarterly; this.dSA=+p.discount_semiannually;
                 this.dA=+p.discount_annually; this.dBi=+p.discount_biennially; this.dTri=+p.discount_triennially;
@@ -553,7 +553,7 @@
         var ec = getEnabledCycles(dp);
         return {
             baseCycle: dp && dp.base_cycle ? dp.base_cycle : 'monthly', rounding:CFG.defaultRounding||'round', roundTo:CFG.defaultRoundTo||1, overwrite:true,
-            presetId: dp?dp.id:'', presets:CFG.presets||[],
+            presetId: dp?String(dp.id):'', presets:CFG.presets||[],
             discountFields:[{key:'q',label:'Quarterly',cycleKey:'cQ'},{key:'sa',label:'Semi-Annual',cycleKey:'cSA'},{key:'a',label:'Annual',cycleKey:'cA'},{key:'bi',label:'Biennial',cycleKey:'cBi'},{key:'tri',label:'Triennial',cycleKey:'cTri'}],
             discounts:{q:dp?+dp.discount_quarterly:0,sa:dp?+dp.discount_semiannually:5,a:dp?+dp.discount_annually:10,bi:dp?+dp.discount_biennially:15,tri:dp?+dp.discount_triennially:20},
             setupDiscounts:{q:dp?+(dp.discount_setup_quarterly||0):0,sa:dp?+(dp.discount_setup_semiannually||0):5,a:dp?+(dp.discount_setup_annually||0):10,bi:dp?+(dp.discount_setup_biennially||0):15,tri:dp?+(dp.discount_setup_triennially||0):20},
@@ -562,7 +562,7 @@
 
             _ec:function(){return{quarterly:this.cQ,semiannually:this.cSA,annually:this.cA,biennially:this.cBi,triennially:this.cTri};},
 
-            loadPreset:function(){var s=this,p=this.presets.find(function(x){return x.id==s.presetId;});if(!p)return;
+            loadPreset:function(){var s=this,p=this.presets.find(function(x){return String(x.id)===String(s.presetId);});if(!p)return;
                 this.discounts={q:+p.discount_quarterly,sa:+p.discount_semiannually,a:+p.discount_annually,bi:+p.discount_biennially,tri:+p.discount_triennially};
                 this.setupDiscounts={q:+(p.discount_setup_quarterly||0),sa:+(p.discount_setup_semiannually||0),a:+(p.discount_setup_annually||0),bi:+(p.discount_setup_biennially||0),tri:+(p.discount_setup_triennially||0)};
                 this.cQ=p.cycle_quarterly!=0;this.cSA=p.cycle_semiannually!=0;this.cA=p.cycle_annually!=0;this.cBi=p.cycle_biennially!=0;this.cTri=p.cycle_triennially!=0;
@@ -762,7 +762,7 @@
 
     function buildEmbeddedToolbar() {
         var h='<div class="hvn-toolbar-header"><span class="hvn-toolbar-title">⚡ Config Pricing Calculator</span>';
-        h+='<div class="hvn-group"><label>Preset:</label><select class="hvn-select" x-model="presetId" @change="loadPreset()"><template x-for="p in presets" :key="p.id"><option :value="p.id" x-text="p.name"></option></template></select></div></div>';
+        h+='<div class="hvn-group"><label>Preset:</label><select class="hvn-select" x-model="presetId" @change="loadPreset()" x-effect="$nextTick(() => { $el.value = presetId })"><template x-for="p in presets" :key="p.id"><option :value="String(p.id)" x-text="p.name"></option></template></select></div></div>';
         h+='<div class="hvn-toolbar-row"><div class="hvn-group"><label>Base:</label><select class="hvn-select" x-model="baseCycle"><option value="monthly">Monthly</option><option value="annually">Annually</option></select></div>';
         h+='<div class="hvn-group"><label>Round:</label><select class="hvn-select" x-model="rounding"><option value="none">None</option><option value="ceil">Ceil</option><option value="floor">Floor</option><option value="round">Nearest</option></select></div>';
         h+='<div class="hvn-group"><label>To:</label><select class="hvn-select" x-model.number="roundTo"><option value="0.01">0.01</option><option value="1">1</option><option value="100">100</option><option value="1000">1,000</option><option value="10000">10,000</option></select></div>';
@@ -822,8 +822,8 @@
         var h = '<div class="hvn-toolbar">';
 
         h += '<div class="hvn-toolbar-header"><span class="hvn-toolbar-title">⚡ HVN Pricing Calculator</span>';
-        h += '<div class="hvn-group"><label>Preset:</label><select class="hvn-select" x-model="presetId" @change="loadPreset()">';
-        h += '<template x-for="p in presets" :key="p.id"><option :value="p.id" x-text="p.name"></option></template></select></div></div>';
+        h += '<div class="hvn-group"><label>Preset:</label><select class="hvn-select" x-model="presetId" @change="loadPreset()" x-effect="$nextTick(() => { $el.value = presetId })">';
+        h += '<template x-for="p in presets" :key="p.id"><option :value="String(p.id)" x-text="p.name"></option></template></select></div></div>';
 
         h += '<div class="hvn-toolbar-hint">Enter the <strong>base price</strong> in the default currency, then click <strong>Calc All</strong>. Disabled cycles and cells with <strong>-1.00</strong> are skipped.</div>';
 

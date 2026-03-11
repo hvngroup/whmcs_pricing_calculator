@@ -103,9 +103,10 @@ defined("WHMCS") or die("Access Denied");
                     <span class="hvn-toolbar-title">⚡ Config Pricing Calculator</span>
                     <div class="hvn-group">
                         <label>Preset:</label>
-                        <select class="hvn-select" x-model="presetId" @change="loadPreset()">
+                        <select class="hvn-select" x-model="presetId" @change="loadPreset()"
+                                x-effect="$nextTick(() => { $el.value = presetId })">
                             <template x-for="p in presets" :key="p.id">
-                                <option :value="p.id" x-text="p.name"></option>
+                                <option :value="String(p.id)" x-text="p.name"></option>
                             </template>
                         </select>
                     </div>
