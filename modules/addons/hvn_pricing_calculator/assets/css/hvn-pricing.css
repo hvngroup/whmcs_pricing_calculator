@@ -1,9 +1,8 @@
 /* ============================================================
    HVN Pricing Calculator v1.0.0
-   Ant Design–inspired theme. Pure CSS, no external framework.
+   Ant Design–inspired. Pure CSS, no external framework.
    ============================================================ */
 
-/* --- Design Tokens (Ant Design palette) --- */
 :root {
     --hvn-blue: #1677ff;
     --hvn-blue-hover: #4096ff;
@@ -19,49 +18,39 @@
     --hvn-gold: #faad14;
     --hvn-gold-bg: #fffbe6;
     --hvn-gold-border: #ffe58f;
-
     --hvn-text: rgba(0, 0, 0, 0.88);
     --hvn-text-secondary: rgba(0, 0, 0, 0.65);
     --hvn-text-tertiary: rgba(0, 0, 0, 0.45);
     --hvn-text-quaternary: rgba(0, 0, 0, 0.25);
-
     --hvn-bg: #ffffff;
     --hvn-bg-layout: #f5f5f5;
-    --hvn-bg-elevated: #ffffff;
     --hvn-bg-spotlight: #f0f5ff;
-
     --hvn-border: #d9d9d9;
     --hvn-border-light: #f0f0f0;
-    --hvn-border-active: #1677ff;
-
     --hvn-radius: 8px;
     --hvn-radius-sm: 6px;
     --hvn-radius-lg: 12px;
-
     --hvn-shadow-sm: 0 1px 2px 0 rgba(0,0,0,0.03), 0 1px 6px -1px rgba(0,0,0,0.02), 0 2px 4px 0 rgba(0,0,0,0.02);
     --hvn-shadow: 0 6px 16px 0 rgba(0,0,0,0.08), 0 3px 6px -4px rgba(0,0,0,0.12), 0 9px 28px 8px rgba(0,0,0,0.05);
-    --hvn-shadow-lg: 0 6px 16px 0 rgba(0,0,0,0.08), 0 3px 6px -4px rgba(0,0,0,0.12), 0 9px 28px 8px rgba(0,0,0,0.05);
-
     --hvn-font: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
     --hvn-font-sm: 12px;
     --hvn-font-base: 14px;
     --hvn-font-xs: 11px;
-
-    --hvn-line-height: 1.5714;
     --hvn-transition: all 0.2s cubic-bezier(0.645, 0.045, 0.355, 1);
 }
 
-/* --- Toolbar Container --- */
+/* ============================================================
+   TOOLBAR
+   ============================================================ */
 .hvn-toolbar {
     font-family: var(--hvn-font);
     background: var(--hvn-bg);
     border: 1px solid var(--hvn-border-light);
     border-radius: var(--hvn-radius-lg);
-    padding: 16px 20px;
+    padding: 20px;
     margin-bottom: 16px;
     box-shadow: var(--hvn-shadow-sm);
     font-size: var(--hvn-font-base);
-    line-height: var(--hvn-line-height);
     color: var(--hvn-text);
 }
 
@@ -97,7 +86,7 @@
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 16px;
+    gap: 12px;
     margin-bottom: 12px;
 }
 
@@ -105,7 +94,23 @@
     margin-bottom: 0;
 }
 
-/* --- Form Groups --- */
+/* --- Toolbar Hint --- */
+.hvn-toolbar-hint {
+    font-size: var(--hvn-font-sm);
+    color: var(--hvn-text-tertiary);
+    background: var(--hvn-blue-bg);
+    border: 1px solid var(--hvn-blue-border);
+    border-radius: var(--hvn-radius-sm);
+    padding: 8px 14px;
+    margin-bottom: 14px;
+    line-height: 1.6;
+}
+
+.hvn-toolbar-hint strong {
+    color: var(--hvn-blue);
+}
+
+/* --- Form Group --- */
 .hvn-group {
     display: flex;
     align-items: center;
@@ -120,7 +125,9 @@
     white-space: nowrap;
 }
 
-/* --- Inputs (Ant Design style) --- */
+/* ============================================================
+   INPUTS (Ant Design)
+   ============================================================ */
 .hvn-select,
 .hvn-input {
     height: 32px;
@@ -162,29 +169,42 @@
     padding: 4px 6px;
 }
 
-/* --- Discount Row --- */
+/* ============================================================
+   DISCOUNT ROW — full width, evenly distributed
+   ============================================================ */
 .hvn-discounts {
     display: flex;
     align-items: center;
-    gap: 10px;
-    flex-wrap: wrap;
+    gap: 0;
+    width: 100%;
 }
 
-.hvn-discounts > label {
+.hvn-discounts > label.hvn-discounts__label {
     font-weight: 500;
     font-size: var(--hvn-font-sm);
     color: var(--hvn-text-secondary);
+    white-space: nowrap;
+    min-width: 90px;
+    flex-shrink: 0;
+}
+
+.hvn-discounts__fields {
+    display: flex;
+    flex: 1;
+    gap: 6px;
 }
 
 .hvn-discount {
-    display: inline-flex;
+    flex: 1;
+    display: flex;
     align-items: center;
     gap: 4px;
     background: var(--hvn-bg-layout);
     border: 1px solid var(--hvn-border-light);
     border-radius: var(--hvn-radius-sm);
-    padding: 2px 8px 2px 10px;
+    padding: 4px 8px;
     transition: var(--hvn-transition);
+    min-width: 0;
 }
 
 .hvn-discount:hover {
@@ -196,14 +216,15 @@
     font-weight: 600;
     font-size: var(--hvn-font-xs);
     color: var(--hvn-text-tertiary);
-    min-width: 20px;
-    text-align: right;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+    white-space: nowrap;
+    min-width: 0;
+    flex-shrink: 0;
+    margin-bottom: 0
 }
 
 .hvn-discount input {
-    width: 48px;
+    flex: 1;
+    min-width: 36px;
     height: 26px;
     text-align: center;
     font-size: var(--hvn-font-sm);
@@ -226,14 +247,17 @@
     font-size: var(--hvn-font-xs);
     color: var(--hvn-text-quaternary);
     font-weight: 500;
+    flex-shrink: 0;
 }
 
-/* --- Toggle / Switch style --- */
+/* ============================================================
+   TOGGLE / SWITCH
+   ============================================================ */
 .hvn-toggle {
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    padding: 4px 12px;
+    padding: 0 12px;
     border: 1px solid var(--hvn-border);
     border-radius: var(--hvn-radius-sm);
     background: var(--hvn-bg);
@@ -243,6 +267,7 @@
     user-select: none;
     transition: var(--hvn-transition);
     height: 32px;
+    white-space: nowrap;
 }
 
 .hvn-toggle:hover {
@@ -260,6 +285,7 @@
     cursor: pointer;
     transition: var(--hvn-transition);
     margin: 0;
+    flex-shrink: 0;
 }
 
 .hvn-toggle input[type="checkbox"]::after {
@@ -282,7 +308,9 @@
     left: 14px;
 }
 
-/* --- Buttons (Ant Design) --- */
+/* ============================================================
+   BUTTONS (Ant Design)
+   ============================================================ */
 .hvn-actions {
     display: flex;
     gap: 8px;
@@ -308,116 +336,65 @@
     line-height: 1;
 }
 
-.hvn-btn:disabled {
-    opacity: 0.4;
-    cursor: not-allowed;
-}
+.hvn-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
 .hvn-btn--primary {
-    background: var(--hvn-blue);
-    color: #fff;
-    border-color: var(--hvn-blue);
+    background: var(--hvn-blue); color: #fff; border-color: var(--hvn-blue);
     box-shadow: 0 2px 0 rgba(22, 119, 255, 0.1);
 }
-.hvn-btn--primary:hover:not(:disabled) {
-    background: var(--hvn-blue-hover);
-    border-color: var(--hvn-blue-hover);
-}
-.hvn-btn--primary:active:not(:disabled) {
-    background: var(--hvn-blue-active);
-    border-color: var(--hvn-blue-active);
-}
+.hvn-btn--primary:hover:not(:disabled) { background: var(--hvn-blue-hover); border-color: var(--hvn-blue-hover); }
+.hvn-btn--primary:active:not(:disabled) { background: var(--hvn-blue-active); border-color: var(--hvn-blue-active); }
 
 .hvn-btn--success {
-    background: var(--hvn-green);
-    color: #fff;
-    border-color: var(--hvn-green);
+    background: var(--hvn-green); color: #fff; border-color: var(--hvn-green);
     box-shadow: 0 2px 0 rgba(82, 196, 26, 0.1);
 }
-.hvn-btn--success:hover:not(:disabled) {
-    background: var(--hvn-green-hover);
-    border-color: var(--hvn-green-hover);
-}
-.hvn-btn--success:active:not(:disabled) {
-    background: var(--hvn-green-active);
-    border-color: var(--hvn-green-active);
-}
+.hvn-btn--success:hover:not(:disabled) { background: var(--hvn-green-hover); border-color: var(--hvn-green-hover); }
+.hvn-btn--success:active:not(:disabled) { background: var(--hvn-green-active); border-color: var(--hvn-green-active); }
 
 .hvn-btn--default {
-    background: var(--hvn-bg);
-    color: var(--hvn-text);
-    border-color: var(--hvn-border);
+    background: var(--hvn-bg); color: var(--hvn-text); border-color: var(--hvn-border);
     box-shadow: 0 2px 0 rgba(0, 0, 0, 0.02);
 }
-.hvn-btn--default:hover:not(:disabled) {
-    color: var(--hvn-blue);
-    border-color: var(--hvn-blue);
-}
+.hvn-btn--default:hover:not(:disabled) { color: var(--hvn-blue); border-color: var(--hvn-blue); }
 
 .hvn-btn--danger {
-    background: var(--hvn-bg);
-    color: var(--hvn-red);
-    border-color: var(--hvn-red);
+    background: var(--hvn-bg); color: var(--hvn-red); border-color: var(--hvn-red);
 }
-.hvn-btn--danger:hover:not(:disabled) {
-    background: #fff1f0;
-    color: var(--hvn-red-hover);
-    border-color: var(--hvn-red-hover);
-}
+.hvn-btn--danger:hover:not(:disabled) { background: #fff1f0; color: var(--hvn-red-hover); border-color: var(--hvn-red-hover); }
 
 .hvn-btn--text {
-    background: transparent;
-    color: var(--hvn-blue);
-    border: none;
-    padding: 4px 8px;
-    box-shadow: none;
+    background: transparent; color: var(--hvn-blue); border: none; padding: 4px 8px; box-shadow: none;
 }
-.hvn-btn--text:hover:not(:disabled) {
-    background: rgba(0,0,0,0.04);
-}
+.hvn-btn--text:hover:not(:disabled) { background: rgba(0,0,0,0.04); }
 
-.hvn-btn--xs {
-    padding: 0 8px;
-    height: 24px;
-    font-size: var(--hvn-font-sm);
-    border-radius: 4px;
-}
+.hvn-btn--xs { padding: 0 8px; height: 24px; font-size: var(--hvn-font-sm); border-radius: 4px; }
+.hvn-btn--sm { padding: 0 12px; height: 28px; font-size: var(--hvn-font-sm); }
+.hvn-btn--lg { padding: 4px 20px; height: 40px; font-size: 16px; border-radius: var(--hvn-radius); }
 
-.hvn-btn--sm {
-    padding: 0 12px;
-    height: 28px;
-    font-size: var(--hvn-font-sm);
-}
-
-.hvn-btn--lg {
-    padding: 4px 20px;
-    height: 40px;
-    font-size: 16px;
-    border-radius: var(--hvn-radius);
-}
-
-/* --- Currency Info Bar --- */
+/* ============================================================
+   CURRENCY INFO
+   ============================================================ */
 .hvn-currency-info {
     font-size: var(--hvn-font-sm);
     color: var(--hvn-text-tertiary);
-    margin-top: 12px;
+    margin-top: 14px;
     padding-top: 12px;
     border-top: 1px solid var(--hvn-border-light);
     display: flex;
     flex-wrap: wrap;
-    gap: 4px;
+    gap: 6px;
     align-items: center;
 }
 
 .hvn-rate {
     display: inline-flex;
     align-items: center;
-    padding: 2px 8px;
+    padding: 2px 10px;
     background: var(--hvn-bg-layout);
     border-radius: 4px;
     font-size: var(--hvn-font-xs);
     color: var(--hvn-text-secondary);
-    margin-right: 4px;
 }
 
 .hvn-rate--default {
@@ -426,7 +403,9 @@
     font-weight: 600;
 }
 
-/* --- Cell States --- */
+/* ============================================================
+   CELL STATES
+   ============================================================ */
 .hvn-changed {
     background-color: var(--hvn-green-bg) !important;
     transition: background-color 3s ease;
@@ -437,7 +416,9 @@
     color: var(--hvn-text-quaternary) !important;
 }
 
-/* --- Toast Notifications (Ant Design message style) --- */
+/* ============================================================
+   TOAST (Ant message style — top center)
+   ============================================================ */
 .hvn-toast-container {
     position: fixed;
     top: 24px;
@@ -455,7 +436,7 @@
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    padding: 9px 12px;
+    padding: 9px 16px;
     border-radius: var(--hvn-radius);
     font-size: var(--hvn-font-base);
     font-family: var(--hvn-font);
@@ -467,17 +448,15 @@
     pointer-events: auto;
 }
 
-.hvn-toast--visible {
-    opacity: 1;
-    transform: translateY(0);
-}
-
+.hvn-toast--visible { opacity: 1; transform: translateY(0); }
 .hvn-toast--success::before { content: '✓'; color: var(--hvn-green); font-weight: 700; font-size: 16px; }
 .hvn-toast--error::before { content: '✕'; color: var(--hvn-red); font-weight: 700; font-size: 16px; }
 .hvn-toast--info::before { content: 'ℹ'; color: var(--hvn-blue); font-weight: 700; font-size: 16px; }
 .hvn-toast--warning::before { content: '⚠'; color: var(--hvn-gold); font-weight: 700; font-size: 16px; }
 
-/* --- Config Options Manager --- */
+/* ============================================================
+   CONFIG OPTIONS MANAGER
+   ============================================================ */
 .hvn-config-mgr {
     font-family: var(--hvn-font);
     background: var(--hvn-bg);
@@ -515,7 +494,7 @@
     border-radius: 2px;
 }
 
-/* --- Currency Tabs (Ant Design segmented) --- */
+/* --- Currency Tabs (segmented control) --- */
 .hvn-tabs {
     display: inline-flex;
     background: var(--hvn-bg-layout);
@@ -540,18 +519,16 @@
     margin: 0;
 }
 
-.hvn-tab:hover {
-    color: var(--hvn-text);
-}
+.hvn-tab:hover { color: var(--hvn-text); }
 
 .hvn-tab--active {
     background: var(--hvn-bg);
     color: var(--hvn-text);
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.1);
     font-weight: 600;
 }
 
-/* --- Option Group Panel (Ant Collapse) --- */
+/* --- Option Group (collapse panel) --- */
 .hvn-optgroup {
     border: 1px solid var(--hvn-border-light);
     border-radius: var(--hvn-radius);
@@ -569,9 +546,7 @@
     transition: var(--hvn-transition);
 }
 
-.hvn-optgroup__header:hover {
-    background: #e8e8e8;
-}
+.hvn-optgroup__header:hover { background: #e8e8e8; }
 
 .hvn-optgroup__title {
     font-weight: 600;
@@ -604,11 +579,9 @@
     color: #ad6800;
 }
 
-.hvn-optgroup__body {
-    padding: 16px;
-}
+.hvn-optgroup__body { padding: 16px; }
 
-/* --- Pricing Table (Ant Table style) --- */
+/* --- Pricing Table (Ant Table) --- */
 .hvn-ptable {
     width: 100%;
     font-size: var(--hvn-font-sm);
@@ -633,10 +606,7 @@
     letter-spacing: 0.3px;
 }
 
-.hvn-ptable th:first-child {
-    text-align: left;
-    padding-left: 12px;
-}
+.hvn-ptable th:first-child { text-align: left; padding-left: 12px; }
 
 .hvn-ptable td {
     padding: 6px 6px;
@@ -645,13 +615,8 @@
     transition: background 0.15s;
 }
 
-.hvn-ptable tr:last-child td {
-    border-bottom: none;
-}
-
-.hvn-ptable tr:hover td {
-    background: #fafafa;
-}
+.hvn-ptable tr:last-child td { border-bottom: none; }
+.hvn-ptable tr:hover td { background: #fafafa; }
 
 .hvn-ptable td:first-child {
     text-align: left;
@@ -686,7 +651,7 @@
     box-shadow: 0 0 0 2px rgba(22, 119, 255, 0.1);
 }
 
-/* --- Quick Create (Ant Empty state) --- */
+/* --- Quick Create --- */
 .hvn-quick-create {
     background: var(--hvn-bg-layout);
     border: 1px dashed var(--hvn-border);
@@ -748,7 +713,9 @@
     border-top: 1px solid var(--hvn-border-light);
 }
 
-/* --- Preset Table (Ant Table) --- */
+/* ============================================================
+   PRESET TABLE
+   ============================================================ */
 .hvn-preset-table {
     width: 100%;
     font-family: var(--hvn-font);
@@ -779,35 +746,13 @@
     color: var(--hvn-text);
 }
 
-.hvn-preset-table tr:last-child td {
-    border-bottom: none;
-}
+.hvn-preset-table tr:last-child td { border-bottom: none; }
+.hvn-preset-table tr:hover td { background: #fafafa; }
+.hvn-preset-table td:first-child { text-align: left; font-weight: 500; }
 
-.hvn-preset-table tr:hover td {
-    background: #fafafa;
-}
-
-.hvn-preset-table td:first-child {
-    text-align: left;
-    font-weight: 500;
-}
-
-/* --- Loading Spinner (Ant spin) --- */
-.hvn-spinner {
-    display: inline-block;
-    width: 16px;
-    height: 16px;
-    border: 2px solid var(--hvn-border-light);
-    border-top-color: var(--hvn-blue);
-    border-radius: 50%;
-    animation: hvn-spin 0.8s linear infinite;
-}
-
-@keyframes hvn-spin {
-    to { transform: rotate(360deg); }
-}
-
-/* --- Card (for admin dashboard) --- */
+/* ============================================================
+   CARD (admin pages)
+   ============================================================ */
 .hvn-card {
     font-family: var(--hvn-font);
     background: var(--hvn-bg);
@@ -834,16 +779,35 @@
     gap: 8px;
 }
 
-.hvn-card__body {
-    padding: 20px;
+.hvn-card__body { padding: 20px; }
+
+/* --- Statistic --- */
+.hvn-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0;
+    margin-bottom: 16px;
 }
 
-/* --- Statistic (Ant Statistic) --- */
 .hvn-stat {
     display: flex;
     flex-direction: column;
-    gap: 4px;
-    padding: 12px 0;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 20px 12px;
+    text-align: center;
+    border: 1px solid var(--hvn-border-light);
+    margin-left: -1px;
+    margin-top: -1px;
+}
+
+.hvn-stat:first-child {
+    border-radius: var(--hvn-radius-sm) 0 0 var(--hvn-radius-sm);
+}
+
+.hvn-stat:last-child {
+    border-radius: 0 var(--hvn-radius-sm) var(--hvn-radius-sm) 0;
 }
 
 .hvn-stat__label {
@@ -852,17 +816,25 @@
 }
 
 .hvn-stat__value {
-    font-size: 20px;
+    font-size: 24px;
     font-weight: 600;
     color: var(--hvn-text);
+    line-height: 1.2;
 }
 
 .hvn-stat__extra {
-    font-size: var(--hvn-font-sm);
+    font-size: var(--hvn-font-xs);
     color: var(--hvn-text-tertiary);
+    margin-top: 2px;
 }
 
-/* --- Tag (for default badge in preset table) --- */
+/* --- Full-width button --- */
+.hvn-btn--block {
+    width: 100%;
+    justify-content: center;
+}
+
+/* --- Tag --- */
 .hvn-tag {
     display: inline-flex;
     align-items: center;
@@ -874,33 +846,336 @@
     line-height: 1;
 }
 
-.hvn-tag--blue {
-    background: var(--hvn-blue-bg);
-    border: 1px solid var(--hvn-blue-border);
-    color: var(--hvn-blue);
+.hvn-tag--blue { background: var(--hvn-blue-bg); border: 1px solid var(--hvn-blue-border); color: var(--hvn-blue); }
+.hvn-tag--green { background: var(--hvn-green-bg); border: 1px solid #b7eb8f; color: var(--hvn-green-active); }
+
+/* ============================================================
+   SPINNER
+   ============================================================ */
+.hvn-spinner {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 2px solid var(--hvn-border-light);
+    border-top-color: var(--hvn-blue);
+    border-radius: 50%;
+    animation: hvn-spin 0.8s linear infinite;
 }
 
-.hvn-tag--green {
-    background: var(--hvn-green-bg);
-    border: 1px solid #b7eb8f;
-    color: var(--hvn-green-active);
-}
+@keyframes hvn-spin { to { transform: rotate(360deg); } }
 
-/* --- Utility --- */
+/* ============================================================
+   UTILITY
+   ============================================================ */
 .hvn-mt-8 { margin-top: 8px; }
 .hvn-mt-12 { margin-top: 12px; }
 .hvn-mt-16 { margin-top: 16px; }
 .hvn-mb-8 { margin-bottom: 8px; }
 .hvn-mb-16 { margin-bottom: 16px; }
 .hvn-text-muted { color: var(--hvn-text-tertiary); }
+.hvn-text-danger { color: var(--hvn-red) !important; }
 .hvn-text-sm { font-size: var(--hvn-font-sm); }
 .hvn-text-xs { font-size: var(--hvn-font-xs); }
 .hvn-hidden { display: none !important; }
 
-/* --- Responsive --- */
+/* ============================================================
+   ADMIN DASHBOARD
+   ============================================================ */
+.hvn-dashboard {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    font-family: var(--hvn-font);
+}
+
+.hvn-dashboard__main {
+    flex: 2;
+    min-width: 420px;
+}
+
+.hvn-dashboard__side {
+    flex: 1;
+    min-width: 260px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+/* --- Version badge --- */
+.hvn-version {
+    font-size: var(--hvn-font-xs);
+    color: var(--hvn-text-tertiary);
+    background: var(--hvn-bg-layout);
+    padding: 2px 10px;
+    border-radius: 100px;
+}
+
+/* --- Card accent bar (colored left border on title) --- */
+.hvn-card__title--blue::before { content: ''; display: inline-block; width: 4px; height: 18px; background: var(--hvn-blue); border-radius: 2px; }
+.hvn-card__title--green::before { content: ''; display: inline-block; width: 4px; height: 14px; background: var(--hvn-green); border-radius: 2px; }
+.hvn-card__title--gold::before { content: ''; display: inline-block; width: 4px; height: 14px; background: var(--hvn-gold); border-radius: 2px; }
+
+.hvn-card__title--sm { font-size: 14px; }
+
+/* --- Info Table (supported pages) --- */
+.hvn-info-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    border: 1px solid var(--hvn-border-light);
+    border-radius: var(--hvn-radius);
+    overflow: hidden;
+    font-size: 13px;
+}
+
+.hvn-info-table th {
+    padding: 10px 14px;
+    text-align: left;
+    background: #fafafa;
+    border-bottom: 1px solid var(--hvn-border-light);
+    font-weight: 600;
+    color: var(--hvn-text-secondary);
+    font-size: var(--hvn-font-xs);
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.hvn-info-table td {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--hvn-border-light);
+    color: var(--hvn-text-secondary);
+}
+
+.hvn-info-table tr:last-child td {
+    border-bottom: none;
+}
+
+.hvn-info-table tr:hover td {
+    background: #fafafa;
+}
+
+.hvn-info-table td:first-child {
+    font-weight: 500;
+    color: var(--hvn-text);
+}
+
+.hvn-code {
+    background: var(--hvn-bg-layout);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: var(--hvn-font-sm);
+    font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+}
+
+/* --- Description text --- */
+.hvn-desc {
+    color: var(--hvn-text-secondary);
+    margin: 0 0 16px;
+    font-size: var(--hvn-font-base);
+    line-height: 1.6;
+}
+
+.hvn-footnote {
+    margin-top: 16px;
+    font-size: var(--hvn-font-sm);
+    color: var(--hvn-text-tertiary);
+}
+
+.hvn-footnote a {
+    color: var(--hvn-blue);
+    text-decoration: none;
+}
+
+.hvn-footnote a:hover {
+    text-decoration: underline;
+}
+
+/* --- Quick Links --- */
+.hvn-quick-links {
+    padding: 8px 0;
+}
+
+.hvn-quick-link {
+    display: flex;
+    align-items: center;
+    padding: 8px 20px;
+    color: var(--hvn-text);
+    text-decoration: none;
+    font-size: var(--hvn-font-base);
+    transition: background 0.15s;
+}
+
+.hvn-quick-link:hover {
+    background: #fafafa;
+    color: var(--hvn-blue);
+}
+
+.hvn-quick-link__arrow {
+    color: var(--hvn-blue);
+    margin-right: 10px;
+    font-size: var(--hvn-font-sm);
+}
+
+/* ============================================================
+   PRESET FORM
+   ============================================================ */
+.hvn-preset-page {
+    font-family: var(--hvn-font);
+}
+
+.hvn-form-row {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+    align-items: flex-end;
+}
+
+.hvn-form-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.hvn-form-field--grow {
+    flex: 1;
+    min-width: 200px;
+}
+
+.hvn-form-field--md {
+    min-width: 140px;
+}
+
+.hvn-form-label {
+    font-weight: 500;
+    font-size: 13px;
+    color: var(--hvn-text);
+}
+
+.hvn-form-input {
+    height: 36px;
+    padding: 4px 12px;
+    font-size: var(--hvn-font-base);
+    font-family: var(--hvn-font);
+    border: 1px solid var(--hvn-border);
+    border-radius: var(--hvn-radius-sm);
+    background: var(--hvn-bg);
+    color: var(--hvn-text);
+    outline: none;
+    transition: var(--hvn-transition);
+    width: 100%;
+}
+
+.hvn-form-input:hover { border-color: var(--hvn-blue-hover); }
+.hvn-form-input:focus { border-color: var(--hvn-blue); box-shadow: 0 0 0 2px rgba(22, 119, 255, 0.1); }
+
+select.hvn-form-input {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M2.5 4.5L6 8l3.5-3.5' fill='none' stroke='%23999' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    padding-right: 30px;
+    cursor: pointer;
+}
+
+.hvn-form-field--align-end {
+    display: flex;
+    align-items: flex-end;
+}
+
+/* --- Section heading with dot --- */
+.hvn-section-title {
+    font-weight: 600;
+    font-size: 13px;
+    color: var(--hvn-text);
+    margin: 0 0 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.hvn-dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+}
+
+.hvn-dot--blue { background: var(--hvn-blue); }
+.hvn-dot--green { background: var(--hvn-green); }
+
+/* --- Preset discount row — full width, evenly distributed (same as toolbar) --- */
+.hvn-form-discounts {
+    display: flex;
+    width: 100%;
+    gap: 6px;
+}
+
+.hvn-form-discount {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: var(--hvn-bg-layout);
+    border: 1px solid var(--hvn-border-light);
+    border-radius: var(--hvn-radius-sm);
+    padding: 6px 10px;
+    transition: var(--hvn-transition);
+    min-width: 0;
+}
+
+.hvn-form-discount:hover {
+    border-color: var(--hvn-blue-border);
+    background: var(--hvn-blue-bg);
+}
+
+.hvn-form-discount label {
+    font-size: var(--hvn-font-sm);
+    color: var(--hvn-text-secondary);
+    white-space: nowrap;
+    flex-shrink: 0;
+    margin-bottom: 0;
+}
+
+.hvn-form-discount input {
+    flex: 1;
+    min-width: 36px;
+    height: 28px;
+    text-align: center;
+    font-size: 13px;
+    font-family: var(--hvn-font);
+    border: 1px solid transparent;
+    border-radius: 4px;
+    background: var(--hvn-bg);
+    outline: none;
+    transition: var(--hvn-transition);
+}
+
+.hvn-form-discount input:focus {
+    border-color: var(--hvn-blue);
+    box-shadow: 0 0 0 2px rgba(22, 119, 255, 0.1);
+}
+
+/* --- Form actions bar --- */
+.hvn-form-actions {
+    display: flex;
+    gap: 8px;
+    padding-top: 16px;
+    border-top: 1px solid var(--hvn-border-light);
+}
+
+/* --- Column separator in preset table --- */
+.hvn-preset-table .hvn-col-sep {
+    border-left: 2px solid var(--hvn-border-light);
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
 @media (max-width: 992px) {
-    .hvn-toolbar-row { gap: 10px; }
-    .hvn-discount input { width: 42px; }
+    .hvn-toolbar-row { gap: 8px; }
+    .hvn-discounts__fields { flex-wrap: wrap; }
+    .hvn-discount { min-width: calc(50% - 4px); }
     .hvn-ptable input, .hvn-config-input { width: 65px; }
     .hvn-quick-create__form { min-width: auto; width: 100%; }
 }

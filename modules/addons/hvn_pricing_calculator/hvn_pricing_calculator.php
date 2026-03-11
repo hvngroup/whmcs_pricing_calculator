@@ -1,6 +1,6 @@
 <?php
 /**
- * HVN Pricing Calculator — WHMCS Addon Module
+ * HVN - Pricing Calculator — WHMCS Addon Module
  *
  * Auto-calculate billing cycle pricing and currency conversion
  * for Products, Configurable Options and Addons.
@@ -155,14 +155,14 @@ function hvn_pricing_calculator_activate(): array
             }
         }
 
-        logActivity('HVN Pricing Calculator: Module activated successfully.');
+        logActivity('HVN - Pricing Calculator: Module activated successfully.');
 
         return [
             'status'      => 'success',
-            'description' => 'HVN Pricing Calculator activated. Default presets created.',
+            'description' => 'HVN - Pricing Calculator activated. Default presets created.',
         ];
     } catch (\Exception $e) {
-        logActivity('HVN Pricing Calculator: Activation failed — ' . $e->getMessage());
+        logActivity('HVN - Pricing Calculator: Activation failed — ' . $e->getMessage());
         return [
             'status'      => 'error',
             'description' => 'Activation failed: ' . $e->getMessage(),
@@ -178,7 +178,7 @@ function hvn_pricing_calculator_deactivate(): array
     try {
         Capsule::schema()->dropIfExists('tbl_hvn_pricing_presets');
 
-        logActivity('HVN Pricing Calculator: Module deactivated, tables removed.');
+        logActivity('HVN - Pricing Calculator: Module deactivated, tables removed.');
 
         return [
             'status'      => 'success',
@@ -214,9 +214,9 @@ function hvn_pricing_calculator_upgrade(array $vars): void
                     });
                 }
             }
-            logActivity('HVN Pricing Calculator: Upgraded to v1.1.0.');
+            logActivity('HVN - Pricing Calculator: Upgraded to v1.1.0.');
         } catch (\Exception $e) {
-            logActivity('HVN Pricing Calculator: Upgrade to v1.1.0 failed — ' . $e->getMessage());
+            logActivity('HVN - Pricing Calculator: Upgrade to v1.1.0 failed — ' . $e->getMessage());
         }
     }
 }
@@ -305,7 +305,7 @@ function hvn_pricing_calculator_handleAjax(string $action): void
                     $id = Capsule::table('tbl_hvn_pricing_presets')->insertGetId($data);
                 }
 
-                logActivity("HVN Pricing Calculator: Preset '{$data['name']}' saved (ID: {$id}).");
+                logActivity("HVN - Pricing Calculator: Preset '{$data['name']}' saved (ID: {$id}).");
                 echo json_encode(['success' => true, 'id' => $id]);
                 break;
 
@@ -314,7 +314,7 @@ function hvn_pricing_calculator_handleAjax(string $action): void
                 if ($id > 0) {
                     $name = Capsule::table('tbl_hvn_pricing_presets')->where('id', $id)->value('name');
                     Capsule::table('tbl_hvn_pricing_presets')->where('id', $id)->delete();
-                    logActivity("HVN Pricing Calculator: Preset '{$name}' deleted.");
+                    logActivity("HVN - Pricing Calculator: Preset '{$name}' deleted.");
                 }
                 echo json_encode(['success' => true]);
                 break;
@@ -374,7 +374,7 @@ function hvn_pricing_calculator_handleAjax(string $action): void
                     }
                 }
 
-                logActivity("HVN Pricing Calculator: Saved {$count} config option pricing records + hidden states.");
+                logActivity("HVN - Pricing Calculator: Saved {$count} config option pricing records + hidden states.");
                 echo json_encode(['success' => true, 'count' => $count]);
                 break;
 
@@ -398,7 +398,7 @@ function hvn_pricing_calculator_handleAjax(string $action): void
                     'pid' => $productId,
                 ]);
 
-                logActivity("HVN Pricing Calculator: Created config group '{$name}' (#{$groupId}), assigned to product #{$productId}.");
+                logActivity("HVN - Pricing Calculator: Created config group '{$name}' (#{$groupId}), assigned to product #{$productId}.");
                 echo json_encode(['success' => true, 'group_id' => $groupId]);
                 break;
 
@@ -439,7 +439,7 @@ function hvn_pricing_calculator_handleAjax(string $action): void
                     ]);
                 }
 
-                logActivity("HVN Pricing Calculator: Assigned config group #{$groupId} to product #{$productId}.");
+                logActivity("HVN - Pricing Calculator: Assigned config group #{$groupId} to product #{$productId}.");
                 echo json_encode(['success' => true]);
                 break;
 
@@ -447,7 +447,7 @@ function hvn_pricing_calculator_handleAjax(string $action): void
                 echo json_encode(['success' => false, 'error' => 'Unknown action: ' . $action]);
         }
     } catch (\Exception $e) {
-        logActivity('HVN Pricing Calculator AJAX Error: ' . $e->getMessage());
+        logActivity('HVN - Pricing Calculator AJAX Error: ' . $e->getMessage());
         echo json_encode(['success' => false, 'error' => $e->getMessage()]);
     }
 

@@ -584,7 +584,7 @@
         return {
             baseCycle:'monthly', rounding:CFG.defaultRounding||'round', roundTo:CFG.defaultRoundTo||1, overwrite:true,
             presetId: dp?dp.id:'', presets:CFG.presets||[],
-            discountFields:[{key:'q',label:'Q'},{key:'sa',label:'SA'},{key:'a',label:'A'},{key:'bi',label:'Bi'},{key:'tri',label:'Tri'}],
+            discountFields:[{key:'q',label:'Quarterly'},{key:'sa',label:'Semi-Annual'},{key:'a',label:'Annual'},{key:'bi',label:'Biennial'},{key:'tri',label:'Triennial'}],
             discounts:{q:dp?+dp.discount_quarterly:0,sa:dp?+dp.discount_semiannually:5,a:dp?+dp.discount_annually:10,bi:dp?+dp.discount_biennially:15,tri:dp?+dp.discount_triennially:20},
             setupDiscounts:{q:dp?+(dp.discount_setup_quarterly||0):0,sa:dp?+(dp.discount_setup_semiannually||0):5,a:dp?+(dp.discount_setup_annually||0):10,bi:dp?+(dp.discount_setup_biennially||0):15,tri:dp?+(dp.discount_setup_triennially||0):20},
             _undoSnap:null,
@@ -876,6 +876,11 @@
         h += '<template x-for="p in presets" :key="p.id"><option :value="p.id" x-text="p.name"></option></template>';
         h += '</select></div></div>';
 
+        h += '<div class="hvn-toolbar-hint">';
+        h += 'Enter the <strong>base price</strong> (Monthly or Annually) in the default currency, then click ';
+        h += '<strong>Calc All</strong> to auto-fill all cycles and currencies. Cells with <strong>-1.00</strong> (disabled) are skipped.';
+        h += '</div>';
+
         h += '<div class="hvn-toolbar-row">';
         h += '<div class="hvn-group"><label>Base:</label><select class="hvn-select" x-model="baseCycle">';
         h += '<option value="monthly">Monthly</option><option value="annually">Annually</option></select></div>';
@@ -889,21 +894,20 @@
 
         // Discounts
         h += '<div class="hvn-toolbar-row"><div class="hvn-discounts">';
-        h += '<label style="font-weight:600;color:var(--hvn-text-secondary);font-size:12px">Discounts:</label>';
-        [['dQ','Q'],['dSA','SA'],['dA','A'],['dBi','Bi'],['dTri','Tri']].forEach(function(d){
-            h+='<div class="hvn-discount"><label>'+d[1]+'</label><input type="number" x-model.number="'+d[0]+'" min="0" max="100" step="0.5" class="hvn-input hvn-input--num"><span class="hvn-pct">%</span></div>';
+        h += '<label class="hvn-discounts__label">Discounts:</label><div class="hvn-discounts__fields">';
+        [['dQ','Quarterly'],['dSA','Semi-Annual'],['dA','Annual'],['dBi','Biennial'],['dTri','Triennial']].forEach(function(d){
+            h+='<div class="hvn-discount"><label>'+d[1]+'</label><input type="number" x-model.number="'+d[0]+'" min="0" max="100" step="0.5"><span class="hvn-pct">%</span></div>';
         });
-        h += '</div></div>';
+        h += '</div></div></div>';
 
-        // Setup fee discounts
+        // Setup fee
         h += '<div class="hvn-toolbar-row"><div class="hvn-discounts">';
-        h += '<label style="font-weight:600;color:var(--hvn-text-secondary);font-size:12px">Setup Fee:</label>';
-        [['sdQ','Q'],['sdSA','SA'],['sdA','A'],['sdBi','Bi'],['sdTri','Tri']].forEach(function(d){
-            h+='<div class="hvn-discount"><label>'+d[1]+'</label><input type="number" x-model.number="'+d[0]+'" min="0" max="100" step="0.5" class="hvn-input hvn-input--num"><span class="hvn-pct">%</span></div>';
+        h += '<label class="hvn-discounts__label">Setup Fee:</label><div class="hvn-discounts__fields">';
+        [['sdQ','Quarterly'],['sdSA','Semi-Annual'],['sdA','Annual'],['sdBi','Biennial'],['sdTri','Triennial']].forEach(function(d){
+            h+='<div class="hvn-discount"><label>'+d[1]+'</label><input type="number" x-model.number="'+d[0]+'" min="0" max="100" step="0.5"><span class="hvn-pct">%</span></div>';
         });
-        h += '</div></div>';
+        h += '</div></div></div>';
 
-        // Buttons
         h += '<div class="hvn-toolbar-row"><div class="hvn-actions">';
         h += '<button type="button" class="hvn-btn hvn-btn--primary hvn-btn--sm" @click="calcCycles()">📊 Calc Cycles</button>';
         h += '<button type="button" class="hvn-btn hvn-btn--primary hvn-btn--sm" @click="calcCurrencies()">💱 Calc Currencies</button>';
@@ -911,7 +915,6 @@
         h += '<button type="button" class="hvn-btn hvn-btn--default hvn-btn--sm" @click="undo()">↩ Undo</button>';
         h += '</div></div>';
 
-        // Currency info
         h += '<template x-if="showRates"><div class="hvn-currency-info">ℹ ';
         h += '<template x-for="c in currencies" :key="c.id"><span class="hvn-rate" :class="{\'hvn-rate--default\':c.default==1}">';
         h += '<span x-text="c.code"></span> (rate: <span x-text="parseFloat(c.rate).toFixed(7)"></span>)';

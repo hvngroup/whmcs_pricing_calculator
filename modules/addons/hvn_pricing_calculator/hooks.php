@@ -246,6 +246,12 @@ function hvn_pricing_renderToolbarHtml(array $page): string
         </div>
     </div>
 
+    <!-- Hint -->
+    <div class="hvn-toolbar-hint">
+        Enter the <strong>base price</strong> (Monthly or Annually) in the default currency, then click
+        <strong>Calc All</strong> to auto-fill all cycles and currencies. Cells with <strong>-1.00</strong> (disabled) are skipped.
+    </div>
+
     <!-- Row 1: Base, Round, Overwrite -->
     <div class="hvn-toolbar-row">
         <div class="hvn-group">
@@ -279,27 +285,31 @@ function hvn_pricing_renderToolbarHtml(array $page): string
         </label>
     </div>
 
-    <!-- Row 2: Recurring Discounts -->
+    <!-- Row 2: Recurring Discounts — full width -->
     <div class="hvn-toolbar-row">
         <div class="hvn-discounts">
-            <label style="font-weight:600;color:var(--hvn-text-secondary);font-size:12px;">Discounts:</label>
-            <div class="hvn-discount"><label>Q</label><input type="number" x-model.number="dQ" min="0" max="100" step="0.5" class="hvn-input hvn-input--num"><span class="hvn-pct">%</span></div>
-            <div class="hvn-discount"><label>SA</label><input type="number" x-model.number="dSA" min="0" max="100" step="0.5" class="hvn-input hvn-input--num"><span class="hvn-pct">%</span></div>
-            <div class="hvn-discount"><label>A</label><input type="number" x-model.number="dA" min="0" max="100" step="0.5" class="hvn-input hvn-input--num"><span class="hvn-pct">%</span></div>
-            <div class="hvn-discount"><label>Bi</label><input type="number" x-model.number="dBi" min="0" max="100" step="0.5" class="hvn-input hvn-input--num"><span class="hvn-pct">%</span></div>
-            <div class="hvn-discount"><label>Tri</label><input type="number" x-model.number="dTri" min="0" max="100" step="0.5" class="hvn-input hvn-input--num"><span class="hvn-pct">%</span></div>
+            <label class="hvn-discounts__label">Discounts:</label>
+            <div class="hvn-discounts__fields">
+                <div class="hvn-discount"><label>Quarterly</label><input type="number" x-model.number="dQ" min="0" max="100" step="0.5"><span class="hvn-pct">%</span></div>
+                <div class="hvn-discount"><label>Semi-Annual</label><input type="number" x-model.number="dSA" min="0" max="100" step="0.5"><span class="hvn-pct">%</span></div>
+                <div class="hvn-discount"><label>Annual</label><input type="number" x-model.number="dA" min="0" max="100" step="0.5"><span class="hvn-pct">%</span></div>
+                <div class="hvn-discount"><label>Biennial</label><input type="number" x-model.number="dBi" min="0" max="100" step="0.5"><span class="hvn-pct">%</span></div>
+                <div class="hvn-discount"><label>Triennial</label><input type="number" x-model.number="dTri" min="0" max="100" step="0.5"><span class="hvn-pct">%</span></div>
+            </div>
         </div>
     </div>
 
-    <!-- Row 3: Setup Fee Discounts -->
+    <!-- Row 3: Setup Fee Discounts — full width -->
     <div class="hvn-toolbar-row">
         <div class="hvn-discounts">
-            <label style="font-weight:600;color:var(--hvn-text-secondary);font-size:12px;">Setup Fee:</label>
-            <div class="hvn-discount"><label>Q</label><input type="number" x-model.number="sdQ" min="0" max="100" step="0.5" class="hvn-input hvn-input--num"><span class="hvn-pct">%</span></div>
-            <div class="hvn-discount"><label>SA</label><input type="number" x-model.number="sdSA" min="0" max="100" step="0.5" class="hvn-input hvn-input--num"><span class="hvn-pct">%</span></div>
-            <div class="hvn-discount"><label>A</label><input type="number" x-model.number="sdA" min="0" max="100" step="0.5" class="hvn-input hvn-input--num"><span class="hvn-pct">%</span></div>
-            <div class="hvn-discount"><label>Bi</label><input type="number" x-model.number="sdBi" min="0" max="100" step="0.5" class="hvn-input hvn-input--num"><span class="hvn-pct">%</span></div>
-            <div class="hvn-discount"><label>Tri</label><input type="number" x-model.number="sdTri" min="0" max="100" step="0.5" class="hvn-input hvn-input--num"><span class="hvn-pct">%</span></div>
+            <label class="hvn-discounts__label">Setup Fee:</label>
+            <div class="hvn-discounts__fields">
+                <div class="hvn-discount"><label>Quarterly</label><input type="number" x-model.number="sdQ" min="0" max="100" step="0.5"><span class="hvn-pct">%</span></div>
+                <div class="hvn-discount"><label>Semi-Annual</label><input type="number" x-model.number="sdSA" min="0" max="100" step="0.5"><span class="hvn-pct">%</span></div>
+                <div class="hvn-discount"><label>Annual</label><input type="number" x-model.number="sdA" min="0" max="100" step="0.5"><span class="hvn-pct">%</span></div>
+                <div class="hvn-discount"><label>Biennial</label><input type="number" x-model.number="sdBi" min="0" max="100" step="0.5"><span class="hvn-pct">%</span></div>
+                <div class="hvn-discount"><label>Triennial</label><input type="number" x-model.number="sdTri" min="0" max="100" step="0.5"><span class="hvn-pct">%</span></div>
+            </div>
         </div>
     </div>
 

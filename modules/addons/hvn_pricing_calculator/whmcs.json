@@ -5,9 +5,9 @@
     "license": "proprietary",
     "category": "utilities",
     "description": {
-        "name": "HVN Pricing Calculator",
+        "name": "HVN - Pricing Calculator",
         "tagline": "Auto-calculate billing cycle pricing and currency conversion for Products, Configurable Options and Addons.",
-        "long": "HVN Pricing Calculator automatically computes pricing across all billing cycles (Monthly through Triennially) with configurable discounts, and converts between currencies using WHMCS exchange rates. Includes inline Configurable Options manager, discount presets, and overwrite protection."
+        "long": "HVN - Pricing Calculator automatically computes pricing across all billing cycles (Monthly through Triennially) with configurable discounts, and converts between currencies using WHMCS exchange rates. Includes inline Configurable Options manager, discount presets, and overwrite protection."
     },
     "logo": {
         "filename": "logo.png"
