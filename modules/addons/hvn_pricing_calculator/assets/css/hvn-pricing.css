@@ -381,7 +381,16 @@
     background: var(--hvn-bg); color: var(--hvn-red); border-color: var(--hvn-red);
 }
 .hvn-btn--danger:hover:not(:disabled) { background: #fff1f0; color: var(--hvn-red-hover); border-color: var(--hvn-red-hover); }
-
+.hvn-btn--warning {
+    background: var(--hvn-bg);
+    color: var(--hvn-gold);
+    border-color: var(--hvn-gold-border);
+}
+.hvn-btn--warning:hover:not(:disabled) {
+    background: var(--hvn-gold-bg);
+    color: #ad6800;
+    border-color: var(--hvn-gold);
+}
 .hvn-btn--text {
     background: transparent; color: var(--hvn-blue); border: none; padding: 4px 8px; box-shadow: none;
 }

@@ -334,6 +334,7 @@ function hvn_pricing_renderToolbarHtml(array $page): string
             <button type="button" class="hvn-btn hvn-btn--primary hvn-btn--sm" @click="calcCurrencies()">💱 Calc Currencies</button>
             <button type="button" class="hvn-btn hvn-btn--success hvn-btn--sm" @click="calcAll()">⚡ Calc All</button>
             <button type="button" class="hvn-btn hvn-btn--default hvn-btn--sm" @click="undo()">↩ Undo</button>
+            <button type="button" class="hvn-btn hvn-btn--warning hvn-btn--sm" @click="clearCycles()" title="Set disabled cycles to 0.00 (cells with -1.00 are kept untouched)">🧹 Clear Disabled</button>
         </div>
     </div>
 

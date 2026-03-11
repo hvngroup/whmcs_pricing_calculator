@@ -435,8 +435,78 @@
                 this.calcCycles(); this.calcCurrencies();
             },
 
-            undo: function () { Undo.restore(); }
-        };
+            undo: function () { Undo.restore(); },
+
+            clearCycles: function () {
+                var ec = this._ec();
+                var cycleFieldMap = {
+                    quarterly:    'quarterly',
+                    semiannually: 'semiannually',
+                    annually:     'annually',
+                    biennially:   'biennially',
+                    triennially:  'triennially'
+                };
+                var setupFieldMap = {
+                    quarterly:    'qsetupfee',
+                    semiannually: 'ssetupfee',
+                    annually:     'asetupfee',
+                    biennially:   'bsetupfee',
+                    triennially:  'tsetupfee'
+                };
+
+                var toClear = [];
+
+                for (var c in ec) {
+                    if (!ec[c]) {
+                        toClear.push(cycleFieldMap[c]);
+                        toClear.push(setupFieldMap[c]);
+                    }
+                }
+
+                if (this.baseCycle === 'annually') {
+                    toClear.push('monthly');
+                    toClear.push('msetupfee');
+                }
+
+                if (toClear.length === 0) {
+                    Utils.toast('No cycles to clear. Toggle off the cycles you want to reset.', 'warning');
+                    return;
+                }
+
+                Undo.save();
+                var cnt = 0;
+                var subData = PricingDOM.getSubOptionData();
+
+                if (subData) {
+                    for (var curId in subData) {
+                        for (var subId in subData[curId]) {
+                            var inp = subData[curId][subId];
+                            toClear.forEach(function (field) {
+                                if (inp[field] && Utils.parse(inp[field].value) !== -1) {
+                                    inp[field].value = '0.00';
+                                    Utils.highlight(inp[field]);
+                                    cnt++;
+                                }
+                            });
+                        }
+                    }
+                } else {
+                    var grps = PricingDOM.findInputs();
+                    for (var curId in grps) {
+                        var inp = grps[curId];
+                        toClear.forEach(function (field) {
+                            if (inp[field] && Utils.parse(inp[field].value) !== -1) {
+                                inp[field].value = '0.00';
+                                Utils.highlight(inp[field]);
+                                cnt++;
+                            }
+                        });
+                    }
+                }
+
+                Utils.toast('Cleared ' + cnt + ' field(s). Use Undo to revert.', 'info');
+            }
+        };            
     }
 
     /* ================================================================
@@ -624,7 +694,69 @@
                 m.groups=m.groups.slice();Utils.toast('Config currencies: '+cnt+' fields.','success');},
 
             calcAll:function(){if(CFG.confirmApply&&!confirm('Apply to all?'))return;this.calcCycles();this.calcCurrencies();},
-            undo:function(){if(!this._undoSnap){Utils.toast('Nothing to undo.','warning');return;}var m=this._mgr();if(m){m.groups=this._undoSnap;this._undoSnap=null;}Utils.toast('Undone.','info');}
+            undo:function(){if(!this._undoSnap){Utils.toast('Nothing to undo.','warning');return;}var m=this._mgr();if(m){m.groups=this._undoSnap;this._undoSnap=null;}Utils.toast('Undone.','info');},
+
+            clearCycles: function () {
+                var ec = this._ec();
+                var cycleFieldMap = {
+                    quarterly:    'quarterly',
+                    semiannually: 'semiannually',
+                    annually:     'annually',
+                    biennially:   'biennially',
+                    triennially:  'triennially'
+                };
+                var setupFieldMap = {
+                    quarterly:    'qsetupfee',
+                    semiannually: 'ssetupfee',
+                    annually:     'asetupfee',
+                    biennially:   'bsetupfee',
+                    triennially:  'tsetupfee'
+                };
+
+                var toClear = [];
+
+                for (var c in ec) {
+                    if (!ec[c]) {
+                        toClear.push(cycleFieldMap[c]);
+                        toClear.push(setupFieldMap[c]);
+                    }
+                }
+
+                if (this.baseCycle === 'annually') {
+                    toClear.push('monthly');
+                    toClear.push('msetupfee');
+                }
+
+                if (toClear.length === 0) {
+                    Utils.toast('No cycles to clear.', 'warning');
+                    return;
+                }
+
+                var m = this._mgr();
+                if (!m) { Utils.toast('Manager not ready.', 'warning'); return; }
+                this._snap();
+                var cnt = 0;
+
+                m.groups.forEach(function (g) {
+                    g.options.forEach(function (opt) {
+                        opt.subs.forEach(function (sub) {
+                            for (var cid in sub.pricing) {
+                                if (!sub.pricing[cid]) continue;
+                                var p = sub.pricing[cid];
+                                toClear.forEach(function (field) {
+                                    if (p[field] !== undefined && Utils.parse(p[field]) !== -1) {
+                                        p[field] = '0.00';
+                                        cnt++;
+                                    }
+                                });
+                            }
+                        });
+                    });
+                });
+
+                m.groups = m.groups.slice();
+                Utils.toast('Cleared ' + cnt + ' field(s). Use Undo to revert.', 'info');
+            }
         };
     }
 
@@ -815,6 +947,7 @@
         h+='<button type="button" class="hvn-btn hvn-btn--primary hvn-btn--sm" @click="calcCurrencies()">💱 Calc Currencies</button>';
         h+='<button type="button" class="hvn-btn hvn-btn--success hvn-btn--sm" @click="calcAll()">⚡ Calc All</button>';
         h+='<button type="button" class="hvn-btn hvn-btn--default hvn-btn--sm" @click="undo()">↩ Undo</button>';
+        h+='<button type="button" class="hvn-btn hvn-btn--warning hvn-btn--sm" @click="clearCycles()" title="Set disabled cycles to 0.00">🧹 Clear Disabled</button>';
         h+='</div></div>';
         return h;
     }
@@ -888,8 +1021,8 @@
         h += '<button type="button" class="hvn-btn hvn-btn--primary hvn-btn--sm" @click="calcCurrencies()">💱 Calc Currencies</button>';
         h += '<button type="button" class="hvn-btn hvn-btn--success hvn-btn--sm" @click="calcAll()">⚡ Calc All</button>';
         h += '<button type="button" class="hvn-btn hvn-btn--default hvn-btn--sm" @click="undo()">↩ Undo</button>';
+        h += '<button type="button" class="hvn-btn hvn-btn--warning hvn-btn--sm" @click="clearCycles()" title="Set disabled cycles to 0.00 (keeps -1 untouched)">🧹 Clear Disabled</button>';
         h += '</div></div>';
-
         h += '<template x-if="showRates"><div class="hvn-currency-info">ℹ ';
         h += '<template x-for="c in currencies" :key="c.id"><span class="hvn-rate" :class="{\'hvn-rate--default\':c.default==1}"><span x-text="c.code"></span> (rate: <span x-text="parseFloat(c.rate).toFixed(7)"></span>)<template x-if="c.default==1"> <strong>(default)</strong></template> </span></template>';
         h += '</div></template></div>';
