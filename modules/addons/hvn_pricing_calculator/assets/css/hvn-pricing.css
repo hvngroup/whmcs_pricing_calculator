@@ -166,6 +166,11 @@
     padding: 4px 6px;
 }
 
+.hvn-input--full {
+    width: 100%;
+    height: 32px;
+}
+
 /* ============================================================
    DISCOUNT ROW
    ============================================================ */
@@ -303,6 +308,23 @@
 
 .hvn-toggle input[type="checkbox"]:checked::after {
     left: 14px;
+}
+
+.hvn-toggle--compact {
+    height: 22px;
+    padding: 2px 6px;
+}
+
+.hvn-option-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+}
+
+.hvn-option-name {
+    font-size: var(--hvn-font-base);
+    font-weight: 600;
 }
 
 /* ============================================================
@@ -526,6 +548,12 @@
     font-weight: 600;
 }
 
+.hvn-tab__default-badge {
+    margin-left: 3px;
+    opacity: 0.7;
+    font-size: var(--hvn-font-xs);
+}
+
 /* --- Option Group --- */
 .hvn-optgroup {
     border: 1px solid var(--hvn-border-light);
@@ -550,6 +578,8 @@
     font-weight: 600;
     font-size: var(--hvn-font-base);
     color: var(--hvn-text);
+    cursor: pointer;
+    flex: 1;    
 }
 
 .hvn-optgroup__meta {
@@ -578,6 +608,17 @@
 }
 
 .hvn-optgroup__body { padding: 16px; }
+
+.hvn-collapse-arrow {
+    font-size: 14px;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.hvn-assign-row {
+    display: flex;
+    gap: 8px;
+}
 
 /* --- Pricing Table --- */
 .hvn-ptable {
@@ -1223,6 +1264,10 @@
 .hvn-cycle-toggle--active .hvn-cycle-toggle__check {
     background: var(--hvn-blue);
     color: #fff;
+}
+
+.hvn-cycle-toggle__checkbox {
+    display: none;
 }
 
 /* Inline variant (inside toolbar) */

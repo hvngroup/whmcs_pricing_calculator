@@ -733,18 +733,18 @@
         // Quick create
         h+='<template x-if="loaded&&groups.length===0"><div class="hvn-quick-create"><p>ℹ No configurable option groups assigned.</p>';
         h+='<div class="hvn-quick-create__form"><label style="font-weight:600">Create new group:</label>';
-        h+='<input type="text" x-model="newGroupName" class="hvn-input" style="width:100%;height:32px" placeholder="Group Name">';
-        h+='<input type="text" x-model="newGroupDesc" class="hvn-input" style="width:100%;height:32px" placeholder="Description (optional)">';
+        h+='<input type="text" x-model="newGroupName" class="hvn-input hvn-input--full" placeholder="Group Name">';
+        h+='<input type="text" x-model="newGroupDesc" class="hvn-input hvn-input--full" placeholder="Description (optional)">';
         h+='<button type="button" class="hvn-btn hvn-btn--primary" @click="quickCreate()" :disabled="saving">+ Create & Assign</button>';
         h+='<div class="hvn-divider"><span>OR assign existing</span></div>';
-        h+='<div style="display:flex;gap:8px"><select x-model="selectedExistingGroup" class="hvn-select" style="flex:1;height:32px">';
+        h+='<div class="hvn-assign-row"><select x-model="selectedExistingGroup" class="hvn-select" style="flex:1;height:32px">';
         h+='<option value="">Select group...</option><template x-for="g in existingGroups" :key="g.id"><option :value="g.id" x-text="g.name"></option></template></select>';
         h+='<button type="button" class="hvn-btn hvn-btn--default" @click="assignGroup(selectedExistingGroup)" :disabled="!selectedExistingGroup||saving">Assign</button></div>';
         h+='</div></div></template>';
 
         // Groups view
         h+='<template x-if="loaded&&groups.length>0"><div>';
-        h+='<div class="hvn-tabs"><template x-for="cur in currencies" :key="cur.id"><div class="hvn-tab" :class="{\'hvn-tab--active\':activeCurrency==cur.id}" @click="setCurrency(cur.id)"><span x-text="cur.code"></span><template x-if="cur.default==1"><small style="margin-left:3px;opacity:.7">Default</small></template></div></template></div>';
+        h+='<div class="hvn-tabs"><template x-for="cur in currencies" :key="cur.id"><div class="hvn-tab" :class="{\'hvn-tab--active\':activeCurrency==cur.id}" @click="setCurrency(cur.id)"><span x-text="cur.code"></span><template x-if="cur.default==1"><small class="hvn-tab__default-badge">Default</small></template></div></template></div>';
 
         // Embedded toolbar
         h+='<div x-data="hvnConfigToolbar()" class="hvn-toolbar hvn-mb-8">';
@@ -753,17 +753,17 @@
 
         // Groups loop
         h+='<template x-for="group in groups" :key="group.id"><div class="hvn-optgroup">';
-        h+='<div class="hvn-optgroup__header"><span class="hvn-optgroup__title" x-text="group.name" @click="group._collapsed=!group._collapsed" style="cursor:pointer;flex:1"></span><div class="hvn-optgroup__meta">';
+        h+='<div class="hvn-optgroup__header"><span class="hvn-optgroup__title" x-text="group.name" @click="group._collapsed=!group._collapsed"></span><div class="hvn-optgroup__meta">';
         h+='<template x-if="group.shared_count>1"><span class="hvn-badge hvn-badge--shared" x-text="\'Shared with \'+(group.shared_count-1)+\' product(s)\'"></span></template>';
         h+='<a :href="\'configproductoptions.php?action=managegroup&id=\'+group.id" target="_blank" class="hvn-btn hvn-btn--default hvn-btn--xs" @click.stop>↗ Manage</a>';
-        h+='<span x-text="group._collapsed?\'▸\':\'▾\'" style="font-size:14px;cursor:pointer" @click="group._collapsed=!group._collapsed"></span></div></div>';
+        h+='<span x-text="group._collapsed?\'▸\':\'▾\'" class="hvn-collapse-arrow" @click="group._collapsed=!group._collapsed"></span></div></div>';
         h+='<div class="hvn-optgroup__body" x-show="!group._collapsed" x-transition>';
 
         h+='<template x-for="option in group.options" :key="option.id"><div style="margin-bottom:12px">';
-        h+='<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><strong x-text="option.optionname" style="font-size:13px"></strong>';
+        h+='<div class="hvn-option-header"><strong x-text="option.optionname" class="hvn-option-name"></strong>';
         h+='<span class="hvn-text-xs hvn-text-muted" x-text="\'[\'+optionTypeLabel(option.optiontype)+\']\'"></span>';
         h+='<template x-if="option.optiontype==4"><span class="hvn-text-xs hvn-text-muted" x-text="\'Min:\'+option.qtyminimum+\'/Max:\'+option.qtymaximum"></span></template>';
-        h+='<label class="hvn-toggle hvn-text-xs" style="height:22px;padding:2px 6px"><input type="checkbox" :checked="option.hidden==1" @change="option.hidden=$event.target.checked?1:0"> Hidden</label></div>';
+        h+='<label class="hvn-toggle hvn-text-xs hvn-toggle--compact"><input type="checkbox" :checked="option.hidden==1" @change="option.hidden=$event.target.checked?1:0"> Hidden</label></div>';
 
         // Full labels for table headers
         h+='<div style="overflow-x:auto"><table class="hvn-ptable"><thead><tr><th style="min-width:140px">Sub-option</th><th>Hide</th>';
@@ -798,16 +798,16 @@
         h+='<label class="hvn-toggle"><input type="checkbox" x-model="overwrite"> Overwrite existing</label></div>';
 
         // Cycle toggles row
-        h+='<div class="hvn-toolbar-row"><div class="hvn-discounts"><label class="hvn-discounts__label" style="font-weight:600;color:var(--hvn-text-secondary);font-size:12px">Cycles:</label><div class="hvn-discounts__fields">';
+        h+='<div class="hvn-toolbar-row"><div class="hvn-discounts"><label class="hvn-discounts__label">Cycles:</label><div class="hvn-discounts__fields">';
         [['cQ','Quarterly'],['cSA','Semi-Annual'],['cA','Annual'],['cBi','Biennial'],['cTri','Triennial']].forEach(function(d){
-            h+='<label class="hvn-cycle-toggle hvn-cycle-toggle--inline" :class="{\'hvn-cycle-toggle--active\':'+d[0]+'}"><input type="checkbox" x-model="'+d[0]+'" style="display:none"><span class="hvn-cycle-toggle__check" x-text="'+d[0]+'?\'✓\':\'✕\'"></span>'+d[1]+'</label>';
+            h+='<label class="hvn-cycle-toggle hvn-cycle-toggle--inline" :class="{\'hvn-cycle-toggle--active\':'+d[0]+'}"><input type="checkbox" x-model="'+d[0]+'" class="hvn-cycle-toggle__checkbox"><span class="hvn-cycle-toggle__check" x-text="'+d[0]+'?\'✓\':\'✕\'"></span>'+d[1]+'</label>';
         });
         h+='</div></div></div>';
 
-        h+='<div class="hvn-toolbar-row"><div class="hvn-discounts"><label class="hvn-discounts__label" style="font-weight:600;color:var(--hvn-text-secondary);font-size:12px">Discounts:</label><div class="hvn-discounts__fields">';
+        h+='<div class="hvn-toolbar-row"><div class="hvn-discounts"><label class="hvn-discounts__label">Discounts:</label><div class="hvn-discounts__fields">';
         h+='<template x-for="d in discountFields" :key="d.key"><div class="hvn-discount" :class="{\'hvn-form-discount--disabled\':!$data[d.cycleKey]}"><label x-text="d.label"></label><input type="number" x-model.number="discounts[d.key]" min="0" max="100" step="0.5" class="hvn-input hvn-input--num" :disabled="!$data[d.cycleKey]"><span class="hvn-pct">%</span></div></template></div></div></div>';
 
-        h+='<div class="hvn-toolbar-row"><div class="hvn-discounts"><label class="hvn-discounts__label" style="font-weight:600;color:var(--hvn-text-secondary);font-size:12px">Setup Fee:</label><div class="hvn-discounts__fields">';
+        h+='<div class="hvn-toolbar-row"><div class="hvn-discounts"><label class="hvn-discounts__label">Setup Fee:</label><div class="hvn-discounts__fields">';
         h+='<template x-for="d in discountFields" :key="\'s\'+d.key"><div class="hvn-discount" :class="{\'hvn-form-discount--disabled\':!$data[d.cycleKey]}"><label x-text="d.label"></label><input type="number" x-model.number="setupDiscounts[d.key]" min="0" max="100" step="0.5" class="hvn-input hvn-input--num" :disabled="!$data[d.cycleKey]"><span class="hvn-pct">%</span></div></template></div></div></div>';
 
         h+='<div class="hvn-toolbar-row"><div class="hvn-actions">';
@@ -865,7 +865,7 @@
         // Cycle toggles
         h += '<div class="hvn-toolbar-row"><div class="hvn-discounts"><label class="hvn-discounts__label">Cycles:</label><div class="hvn-discounts__fields">';
         [['cQ','Quarterly'],['cSA','Semi-Annual'],['cA','Annual'],['cBi','Biennial'],['cTri','Triennial']].forEach(function(d){
-            h+='<label class="hvn-cycle-toggle hvn-cycle-toggle--inline" :class="{\'hvn-cycle-toggle--active\':'+d[0]+'}"><input type="checkbox" x-model="'+d[0]+'" style="display:none"><span class="hvn-cycle-toggle__check" x-text="'+d[0]+'?\'✓\':\'✕\'"></span>'+d[1]+'</label>';
+            h+='<label class="hvn-cycle-toggle hvn-cycle-toggle--inline" :class="{\'hvn-cycle-toggle--active\':'+d[0]+'}"><input type="checkbox" x-model="'+d[0]+'" class="hvn-cycle-toggle__checkbox"><span class="hvn-cycle-toggle__check" x-text="'+d[0]+'?\'✓\':\'✕\'"></span>'+d[1]+'</label>';
         });
         h += '</div></div></div>';
 
