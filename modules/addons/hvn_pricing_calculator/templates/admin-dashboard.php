@@ -88,6 +88,11 @@ defined("WHMCS") or die("Access Denied");
                     <span class="hvn-guide-arrow">→</span>
                     <span class="hvn-guide-desc">Restore values before the last calculation</span>
                 </div>
+                <div class="hvn-guide-buttons">
+                    <span class="hvn-guide-btn hvn-guide-btn--warning">🧹 Clear Disabled</span>
+                    <span class="hvn-guide-arrow">→</span>
+                    <span class="hvn-guide-desc">Set disabled cycles (toggled off) to 0.00 — useful when switching a product from All Cycles to Monthly-only</span>
+                </div>
 
                 <p class="hvn-section-title hvn-mt-16"><span class="hvn-dot hvn-dot--blue"></span> Step 4 — Save in WHMCS</p>
                 <p class="hvn-guide-text">
@@ -146,6 +151,13 @@ defined("WHMCS") or die("Access Denied");
                     <code>Biennially &nbsp;&nbsp; = Monthly × 24 × (1 − discount%)</code><br>
                     <code>Triennially &nbsp; = Monthly × 36 × (1 − discount%)</code>
                 </div>
+
+                <p class="hvn-section-title"><span class="hvn-dot hvn-dot--blue"></span> Cycle Calculation (base = Annually)</p>
+                <div class="hvn-formula-block">
+                    <code>Biennially &nbsp;&nbsp; = Annually × 2 × (1 − discount%)</code><br>
+                    <code>Triennially &nbsp; = Annually × 3 × (1 − discount%)</code>
+                </div>
+
 
                 <p class="hvn-section-title hvn-mt-16"><span class="hvn-dot hvn-dot--blue"></span> Currency Conversion</p>
                 <div class="hvn-formula-block">
@@ -218,7 +230,6 @@ defined("WHMCS") or die("Access Denied");
             </div>
         </div>
 
-        <!-- Tips -->
         <div class="hvn-card">
             <div class="hvn-card__header">
                 <span class="hvn-card__title hvn-card__title--blue hvn-card__title--sm">Tips</span>
@@ -235,7 +246,11 @@ defined("WHMCS") or die("Access Denied");
                     </div>
                     <div class="hvn-tip">
                         <span class="hvn-tip__icon">💡</span>
-                        <span class="hvn-tip__text">Set a cell to <code>-1.00</code> to disable that cycle. The module will skip it during calculation.</span>
+                        <span class="hvn-tip__text">Set a cell to <code>-1.00</code> to disable that cycle entirely. The module will skip it during all calculations, including Clear Disabled.</span>
+                    </div>
+                    <div class="hvn-tip">
+                        <span class="hvn-tip__icon">🧹</span>
+                        <span class="hvn-tip__text">Use <strong>Clear Disabled</strong> when editing a product that previously had Annual/Biennial/Triennial pricing but you now only want to sell Monthly or Quarterly. Toggle off the unwanted cycles, then click Clear Disabled before saving.</span>
                     </div>
                     <div class="hvn-tip">
                         <span class="hvn-tip__icon">💡</span>
@@ -252,7 +267,5 @@ defined("WHMCS") or die("Access Denied");
                 </div>
             </div>
         </div>
-
     </div>
-
 </div>
