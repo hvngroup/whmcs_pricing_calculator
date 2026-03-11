@@ -35,9 +35,25 @@ defined("WHMCS") or die("Access Denied");
 
                 <p class="hvn-section-title"><span class="hvn-dot hvn-dot--blue"></span> Step 1 — Choose a Preset (optional)</p>
                 <p class="hvn-guide-text">
-                    The toolbar appears automatically on supported pricing pages. Select a discount preset from the
-                    <strong>Preset</strong> dropdown on the right side of the toolbar, or enter discount percentages manually for each cycle.
+                    The toolbar appears automatically on supported pricing pages. Select a preset from the
+                    <strong>Preset</strong> dropdown — this loads discount percentages, rounding settings, and
+                    <strong>cycle toggles</strong> (which cycles to calculate). Presets follow the naming pattern:
                 </p>
+                <div class="hvn-guide-buttons">
+                    <span class="hvn-guide-btn hvn-guide-btn--blue">Standard — All Cycles</span>
+                    <span class="hvn-guide-arrow">→</span>
+                    <span class="hvn-guide-desc">Calculates Q through Tri with standard discounts</span>
+                </div>
+                <div class="hvn-guide-buttons">
+                    <span class="hvn-guide-btn hvn-guide-btn--blue">Standard — Flexible</span>
+                    <span class="hvn-guide-arrow">→</span>
+                    <span class="hvn-guide-desc">Only Q, Semi-Annual, Annual (skips Bi &amp; Tri)</span>
+                </div>
+                <div class="hvn-guide-buttons">
+                    <span class="hvn-guide-btn hvn-guide-btn--blue">Standard — Annual Only</span>
+                    <span class="hvn-guide-arrow">→</span>
+                    <span class="hvn-guide-desc">Only Biennial &amp; Triennial (base = Annually)</span>
+                </div>
 
                 <p class="hvn-section-title"><span class="hvn-dot hvn-dot--blue"></span> Step 2 — Enter the Base Price</p>
                 <p class="hvn-guide-text">
@@ -48,8 +64,9 @@ defined("WHMCS") or die("Access Denied");
 
                 <p class="hvn-section-title"><span class="hvn-dot hvn-dot--blue"></span> Step 3 — Click Calc All</p>
                 <p class="hvn-guide-text">
-                    Click <strong>⚡ Calc All</strong> to compute all cycles (Q, SA, A, Bi, Tri) with the selected discounts,
-                    then convert to all other currencies. You can also use each button individually:
+                    Click <strong>⚡ Calc All</strong> to compute enabled cycles with the selected discounts,
+                    then convert to all other currencies. Disabled cycles (toggled off in the preset) are skipped entirely.
+                    You can also use each button individually:
                 </p>
                 <div class="hvn-guide-buttons">
                     <span class="hvn-guide-btn hvn-guide-btn--blue">📊 Calc Cycles</span>
@@ -219,6 +236,14 @@ defined("WHMCS") or die("Access Denied");
                     <div class="hvn-tip">
                         <span class="hvn-tip__icon">💡</span>
                         <span class="hvn-tip__text">Set a cell to <code>-1.00</code> to disable that cycle. The module will skip it during calculation.</span>
+                    </div>
+                    <div class="hvn-tip">
+                        <span class="hvn-tip__icon">💡</span>
+                        <span class="hvn-tip__text">Use <strong>Flexible</strong> presets for monthly-based products (Q/SA/A only). Use <strong>Annual Only</strong> for products priced annually (Bi/Tri only).</span>
+                    </div>
+                    <div class="hvn-tip">
+                        <span class="hvn-tip__icon">💡</span>
+                        <span class="hvn-tip__text">Cycle toggles in the toolbar can be adjusted per-product without changing the preset. Changes are not saved back to the preset.</span>
                     </div>
                     <div class="hvn-tip">
                         <span class="hvn-tip__icon">💡</span>

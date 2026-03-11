@@ -760,11 +760,11 @@
     align-items: center;
     gap: 4px;
     padding: 3px 10px;
-    background: var(--hvn-green-bg);
+    background: var(--hvn-bg-layout);
     border: 1px solid var(--hvn-border-light);
     border-radius: 4px;
     font-size: var(--hvn-font-xs);
-    color: var(--hvn-text-secondary);
+    color: var(--hvn-text-tertiary);
     white-space: nowrap;
 }
 
@@ -1169,6 +1169,95 @@
     border-radius: 3px;
     font-size: var(--hvn-font-xs);
     font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+}
+
+/* ============================================================
+   CYCLE TOGGLES
+   ============================================================ */
+.hvn-cycle-toggles {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.hvn-cycle-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border: 1px solid var(--hvn-border);
+    border-radius: var(--hvn-radius-sm);
+    background: var(--hvn-bg);
+    cursor: pointer;
+    font-size: var(--hvn-font-sm);
+    font-weight: 500;
+    color: var(--hvn-text-tertiary);
+    transition: var(--hvn-transition);
+    user-select: none;
+}
+
+.hvn-cycle-toggle:hover {
+    border-color: var(--hvn-blue-hover);
+}
+
+.hvn-cycle-toggle--active {
+    background: var(--hvn-blue-bg);
+    border-color: var(--hvn-blue-border);
+    color: var(--hvn-blue);
+}
+
+.hvn-cycle-toggle__check {
+    font-size: 11px;
+    font-weight: 700;
+    width: 16px;
+    height: 16px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 3px;
+    background: var(--hvn-bg-layout);
+    color: var(--hvn-text-quaternary);
+    flex-shrink: 0;
+}
+
+.hvn-cycle-toggle--active .hvn-cycle-toggle__check {
+    background: var(--hvn-blue);
+    color: #fff;
+}
+
+/* Inline variant (inside toolbar) */
+.hvn-cycle-toggle--inline {
+    flex: 1;
+    justify-content: center;
+    padding: 4px 8px;
+    min-width: 0;
+    border-radius: 4px;
+}
+
+/* Disabled discount field */
+.hvn-form-discount--disabled {
+    opacity: 0.4;
+    pointer-events: none;
+    background: var(--hvn-bg-layout) !important;
+}
+
+/* Disabled preset cell */
+.hvn-preset-cell--disabled {
+    opacity: 0.45;
+    background: repeating-linear-gradient(
+        -45deg,
+        var(--hvn-bg-layout),
+        var(--hvn-bg-layout) 4px,
+        #e8e8e8 4px,
+        #e8e8e8 5px
+    ) !important;
+}
+
+.hvn-preset-cell__val--skip {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--hvn-text-quaternary);
+    font-style: italic;
 }
 
 /* ============================================================

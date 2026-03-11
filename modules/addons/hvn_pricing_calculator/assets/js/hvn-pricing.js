@@ -1,20 +1,8 @@
 /**
- * HVN Pricing Calculator v1.0.0
+ * HVN Pricing Calculator v1.1.0
  *
  * Alpine.js components for pricing calculation.
- *
- * ARCHITECTURE:
- *   - Toolbar HTML is rendered by PHP (hooks.php) and relocated by a small script.
- *   - This file registers Alpine.data() components via the `alpine:init` event.
- *   - Alpine.js CDN (defer) loads AFTER this file, fires `alpine:init`,
- *     then processes the DOM and finds x-data attributes.
- *
- * LOAD ORDER (set by hooks.php):
- *   1. <script>window.HvnConfig={...}</script>     — inline, sync
- *   2. <script src="hvn-pricing.js"></script>       — sync (registers alpine:init)
- *   3. <script defer src="alpine.js"></script>      — defer (processes DOM last)
- *   4. Toolbar HTML (already in DOM from PHP)
- *   5. Relocator script (moves toolbar to correct position)
+ * v1.1.0: Added cycle enable/disable from presets.
  */
 
 (function () {
@@ -99,6 +87,16 @@
     };
 
     /* ================================================================
+       CYCLE MAP — maps cycle keys to enabled flags from preset
+       ================================================================ */
+    var CYCLE_KEYS = ['quarterly', 'semiannually', 'annually', 'biennially', 'triennially'];
+    var SETUP_KEYS = ['msetupfee', 'qsetupfee', 'ssetupfee', 'asetupfee', 'bsetupfee', 'tsetupfee'];
+    var CYCLE_TO_SETUP = {
+        quarterly: 'qsetupfee', semiannually: 'ssetupfee', annually: 'asetupfee',
+        biennially: 'bsetupfee', triennially: 'tsetupfee', monthly: 'msetupfee'
+    };
+
+    /* ================================================================
        CALCULATOR ENGINE
        ================================================================ */
     var Calc = {
@@ -111,7 +109,10 @@
             annually: 'asetupfee', biennially: 'bsetupfee', triennially: 'tsetupfee'
         },
 
-        cycles: function (baseVal, baseCycle, discounts, rounding, roundTo) {
+        /**
+         * @param {object} enabledCycles - { quarterly: true/false, ... }
+         */
+        cycles: function (baseVal, baseCycle, discounts, rounding, roundTo, enabledCycles) {
             if (baseVal === null || baseVal === -1) return null;
             var baseMult = this.MULTIPLIERS[baseCycle] || 1;
             var monthlyEquiv = baseVal / baseMult;
@@ -120,6 +121,8 @@
 
             for (var cycle in this.MULTIPLIERS) {
                 if (cycle === baseCycle) { result[cycle] = baseVal; continue; }
+                // Skip disabled cycles
+                if (enabledCycles && enabledCycles[cycle] === false) continue;
                 var mult = this.MULTIPLIERS[cycle];
                 if (baseCycle === 'annually' && mult < baseMult) continue;
                 var raw = monthlyEquiv * mult;
@@ -130,14 +133,19 @@
             return result;
         },
 
-        setupFees: function (baseSetup, baseCycle, setupDiscounts, rounding, roundTo) {
+        setupFees: function (baseSetup, baseCycle, setupDiscounts, rounding, roundTo, enabledCycles) {
             if (baseSetup === null || baseSetup === -1) return null;
             var baseFeeKey = this.SETUP_MAP[baseCycle];
             var result = {};
             var dMap = { qsetupfee:'q', ssetupfee:'sa', asetupfee:'a', bsetupfee:'bi', tsetupfee:'tri' };
+            var setupToCycle = { qsetupfee:'quarterly', ssetupfee:'semiannually', asetupfee:'annually', bsetupfee:'biennially', tsetupfee:'triennially' };
+
             for (var cycle in this.SETUP_MAP) {
                 var feeKey = this.SETUP_MAP[cycle];
                 if (feeKey === baseFeeKey) { result[feeKey] = baseSetup; continue; }
+                // Skip disabled cycles
+                var cycleKey = setupToCycle[feeKey];
+                if (enabledCycles && cycleKey && enabledCycles[cycleKey] === false) continue;
                 var dk = dMap[feeKey];
                 var raw = baseSetup;
                 if (dk && setupDiscounts[dk]) raw *= (1 - setupDiscounts[dk] / 100);
@@ -157,25 +165,6 @@
        PRICING TABLE DOM PARSER
        ================================================================ */
     var PricingDOM = {
-        /**
-         * WHMCS pricing input naming patterns:
-         *
-         * Product/Addon pricing (configproducts.php, configaddons.php):
-         *   currency[currencyId][cycle]   e.g. currency[2][monthly]
-         *   pricing[currencyId][cycle]    (some versions)
-         *
-         * Configurable Options pricing (configproductoptions.php):
-         *   price[currencyId][subOptionId][cycleIndex]  e.g. price[2][869][1]
-         *   Cycle index mapping:
-         *     1=msetupfee, 2=qsetupfee, 3=ssetupfee, 4=asetupfee, 5=bsetupfee, 6=tsetupfee
-         *     7=monthly,   8=quarterly, 9=semiannually, 10=annually, 11=biennially, 12=triennially
-         *   (Actual indices may vary — we detect from table headers)
-         */
-
-        // Cycle index map for configproductoptions.php price[cur][sub][idx]
-        // WHMCS 8.x layout:
-        //   Setup:   1=msetupfee, 2=qsetupfee, 3=ssetupfee, 4=asetupfee, 5=bsetupfee, 11=tsetupfee
-        //   Pricing: 6=monthly,   7=quarterly,  8=semiannually, 9=annually, 10=biennially, 12=triennially
         PRICE_IDX_MAP: {
             1: 'msetupfee', 2: 'qsetupfee', 3: 'ssetupfee',
             4: 'asetupfee', 5: 'bsetupfee', 11: 'tsetupfee',
@@ -185,23 +174,13 @@
 
         findInputs: function (container) {
             container = container || document;
-
-            // Try standard pattern first: currency[id][cycle] or pricing[id][cycle]
             var stdInputs = container.querySelectorAll('input[name*="currency["], input[name*="pricing["]');
-            if (stdInputs.length > 0) {
-                return this._parseStandardInputs(stdInputs);
-            }
-
-            // Try configoptions pattern: price[currencyId][subId][index]
+            if (stdInputs.length > 0) return this._parseStandardInputs(stdInputs);
             var priceInputs = container.querySelectorAll('input[name^="price["]');
-            if (priceInputs.length > 0) {
-                return this._parsePriceInputs(priceInputs);
-            }
-
+            if (priceInputs.length > 0) return this._parsePriceInputs(priceInputs);
             return {};
         },
 
-        /** Parse currency[id][cycle] and pricing[id][cycle] patterns */
         _parseStandardInputs: function (inputs) {
             var groups = {};
             inputs.forEach(function (el) {
@@ -215,19 +194,10 @@
             return groups;
         },
 
-        /**
-         * Parse price[currencyId][subOptionId][index] pattern.
-         * Groups by currencyId. For each currency, maps index to cycle name.
-         *
-         * NOTE: On configproductoptions.php, each sub-option has its own set
-         * of inputs. We group ALL sub-options under the same currency,
-         * so Calc Currencies works across all of them.
-         * For Calc Cycles, we process each sub-option row independently.
-         */
         _parsePriceInputs: function (inputs) {
             var self = this;
-            var groups = {};     // { currencyId: { cycle: [inputEl, ...], ... } }
-            var bySubOption = {}; // { currencyId: { subId: { cycle: inputEl } } }
+            var groups = {};
+            var bySubOption = {};
 
             inputs.forEach(function (el) {
                 var m = el.name.match(/price\[(\d+)\]\[(\d+)\]\[(\d+)\]/);
@@ -237,44 +207,34 @@
                 var idx = parseInt(m[3]);
                 var cycle = self.PRICE_IDX_MAP[idx];
                 if (!cycle) return;
-
                 if (!bySubOption[curId]) bySubOption[curId] = {};
                 if (!bySubOption[curId][subId]) bySubOption[curId][subId] = {};
                 bySubOption[curId][subId][cycle] = el;
             });
 
-            // Store the structured data for sub-option-aware operations
             this._subOptionData = bySubOption;
 
-            // Also create a flat groups structure for currency conversion
-            // (takes the first sub-option as representative — currency calc
-            // will iterate sub-options separately)
             for (var curId in bySubOption) {
                 groups[curId] = {};
                 for (var subId in bySubOption[curId]) {
                     for (var cycle in bySubOption[curId][subId]) {
-                        if (!groups[curId][cycle]) {
-                            groups[curId][cycle] = bySubOption[curId][subId][cycle];
-                        }
+                        if (!groups[curId][cycle]) groups[curId][cycle] = bySubOption[curId][subId][cycle];
                     }
-                    break; // just first sub for structure detection
+                    break;
                 }
             }
-
             return groups;
         },
 
-        /** Get sub-option structured data (for configoptions page) */
-        getSubOptionData: function () {
-            return this._subOptionData || null;
-        },
-
+        getSubOptionData: function () { return this._subOptionData || null; },
         _subOptionData: null,
+
         readValues: function (curInputs) {
             var v = {};
             for (var f in curInputs) v[f] = Utils.parse(curInputs[f].value);
             return v;
         },
+
         writeValues: function (curInputs, vals, overwrite) {
             var c = 0;
             for (var f in vals) {
@@ -323,13 +283,26 @@
         return CFG.presets[0];
     }
 
+    /** Extract enabled cycles from a preset object */
+    function getEnabledCycles(preset) {
+        if (!preset) return { quarterly:true, semiannually:true, annually:true, biennially:true, triennially:true };
+        return {
+            quarterly:    preset.cycle_quarterly != 0,
+            semiannually: preset.cycle_semiannually != 0,
+            annually:     preset.cycle_annually != 0,
+            biennially:   preset.cycle_biennially != 0,
+            triennially:  preset.cycle_triennially != 0
+        };
+    }
+
     /* ================================================================
        ALPINE COMPONENT: Toolbar (for native WHMCS pricing pages)
        ================================================================ */
     function toolbarData() {
         var dp = findDefaultPreset();
+        var ec = getEnabledCycles(dp);
         return {
-            baseCycle: 'monthly',
+            baseCycle: dp && dp.base_cycle ? dp.base_cycle : 'monthly',
             rounding: CFG.defaultRounding || 'round',
             roundTo: CFG.defaultRoundTo || 1,
             overwrite: true,
@@ -347,6 +320,8 @@
             sdA: dp ? +(dp.discount_setup_annually || 0) : 10,
             sdBi: dp ? +(dp.discount_setup_biennially || 0) : 15,
             sdTri: dp ? +(dp.discount_setup_triennially || 0) : 20,
+            // Cycle toggles
+            cQ: ec.quarterly, cSA: ec.semiannually, cA: ec.annually, cBi: ec.biennially, cTri: ec.triennially,
 
             loadPreset: function () {
                 var s = this, p = this.presets.find(function (x) { return x.id == s.presetId; });
@@ -355,81 +330,77 @@
                 this.dA=+p.discount_annually; this.dBi=+p.discount_biennially; this.dTri=+p.discount_triennially;
                 this.sdQ=+(p.discount_setup_quarterly||0); this.sdSA=+(p.discount_setup_semiannually||0);
                 this.sdA=+(p.discount_setup_annually||0); this.sdBi=+(p.discount_setup_biennially||0); this.sdTri=+(p.discount_setup_triennially||0);
+                this.cQ=p.cycle_quarterly!=0; this.cSA=p.cycle_semiannually!=0; this.cA=p.cycle_annually!=0; this.cBi=p.cycle_biennially!=0; this.cTri=p.cycle_triennially!=0;
+                this.baseCycle = p.base_cycle || 'monthly';
                 this.rounding = p.rounding_method; this.roundTo = +p.rounding_precision;
                 Utils.toast('Preset "' + p.name + '" loaded.', 'info');
             },
 
             _d: function () { return { q:this.dQ, sa:this.dSA, a:this.dA, bi:this.dBi, tri:this.dTri }; },
             _sd: function () { return { q:this.sdQ, sa:this.sdSA, a:this.sdA, bi:this.sdBi, tri:this.sdTri }; },
+            _ec: function () { return { quarterly:this.cQ, semiannually:this.cSA, annually:this.cA, biennially:this.cBi, triennially:this.cTri }; },
 
             calcCycles: function () {
                 var dc = Utils.defaultCurrency();
                 if (!dc) { Utils.toast('No default currency found.', 'error'); return; }
                 var grps = PricingDOM.findInputs();
                 Undo.save();
-
                 var subData = PricingDOM.getSubOptionData();
                 var cnt = 0;
+                var ec = this._ec();
 
                 if (subData) {
-                    // Config options page: iterate each sub-option independently
                     var curSubs = subData[dc.id];
                     if (!curSubs) { Utils.toast('No pricing inputs for default currency.', 'warning'); return; }
                     for (var subId in curSubs) {
                         var inp = curSubs[subId];
                         var bv = Utils.parse(inp[this.baseCycle] ? inp[this.baseCycle].value : null);
                         if (bv === null || bv === -1) continue;
-                        var cc = Calc.cycles(bv, this.baseCycle, this._d(), this.rounding, this.roundTo);
+                        var cc = Calc.cycles(bv, this.baseCycle, this._d(), this.rounding, this.roundTo, ec);
                         if (cc) cnt += PricingDOM.writeValues(inp, cc, this.overwrite);
                         var bsk = Calc.SETUP_MAP[this.baseCycle];
                         var bs = Utils.parse(inp[bsk] ? inp[bsk].value : null);
                         if (bs !== null && bs !== -1 && bs !== 0) {
-                            var sc = Calc.setupFees(bs, this.baseCycle, this._sd(), this.rounding, this.roundTo);
+                            var sc = Calc.setupFees(bs, this.baseCycle, this._sd(), this.rounding, this.roundTo, ec);
                             if (sc) cnt += PricingDOM.writeValues(inp, sc, this.overwrite);
                         }
                     }
                 } else {
-                    // Standard page: single pricing group per currency
                     var inp = grps[dc.id];
                     if (!inp) { Utils.toast('No pricing inputs for default currency.', 'warning'); return; }
                     var bv = Utils.parse(inp[this.baseCycle] ? inp[this.baseCycle].value : null);
                     if (bv === null || bv === -1) { Utils.toast('Enter a valid ' + this.baseCycle + ' price first.', 'warning'); return; }
-                    var cc = Calc.cycles(bv, this.baseCycle, this._d(), this.rounding, this.roundTo);
+                    var cc = Calc.cycles(bv, this.baseCycle, this._d(), this.rounding, this.roundTo, ec);
                     cnt = cc ? PricingDOM.writeValues(inp, cc, this.overwrite) : 0;
                     var bsk = Calc.SETUP_MAP[this.baseCycle];
                     var bs = Utils.parse(inp[bsk] ? inp[bsk].value : null);
                     if (bs !== null && bs !== -1 && bs !== 0) {
-                        var sc = Calc.setupFees(bs, this.baseCycle, this._sd(), this.rounding, this.roundTo);
+                        var sc = Calc.setupFees(bs, this.baseCycle, this._sd(), this.rounding, this.roundTo, ec);
                         if (sc) cnt += PricingDOM.writeValues(inp, sc, this.overwrite);
                     }
                 }
-
                 Utils.toast('Cycles calculated: ' + cnt + ' fields.', 'success');
             },
 
             calcCurrencies: function () {
                 var dc = Utils.defaultCurrency();
                 if (!dc) { Utils.toast('No default currency found.', 'error'); return; }
-                PricingDOM.findInputs(); // refresh sub-option data
+                PricingDOM.findInputs();
                 if (!Undo.hasSnap()) Undo.save();
-
                 var subData = PricingDOM.getSubOptionData();
                 var cnt = 0;
                 var self = this;
                 var sr = +dc.rate;
 
                 if (subData) {
-                    // Config options: convert each sub-option across currencies
                     var srcSubs = subData[dc.id];
                     if (!srcSubs) { Utils.toast('No pricing inputs for default currency.', 'warning'); return; }
-
                     this.currencies.forEach(function (cur) {
                         if (cur.id == dc.id) return;
                         var tr = +cur.rate;
                         if (!tr) { Utils.toast(cur.code + ' rate=0, skipped.', 'warning'); return; }
                         var tgtSubs = subData[cur.id];
                         if (!tgtSubs) return;
-
                         for (var subId in srcSubs) {
                             if (!tgtSubs[subId]) continue;
                             var sv = PricingDOM.readValues(srcSubs[subId]);
@@ -442,7 +413,6 @@
                         }
                     });
                 } else {
-                    // Standard page
                     var grps = PricingDOM.findInputs();
                     var si = grps[dc.id];
                     if (!si) { Utils.toast('No pricing inputs for default currency.', 'warning'); return; }
@@ -457,7 +427,6 @@
                         cnt += PricingDOM.writeValues(ti, cv, self.overwrite);
                     });
                 }
-
                 Utils.toast('Currency conversion: ' + cnt + ' fields.', 'success');
             },
 
@@ -581,29 +550,35 @@
        ================================================================ */
     function configToolbarData() {
         var dp = findDefaultPreset();
+        var ec = getEnabledCycles(dp);
         return {
-            baseCycle:'monthly', rounding:CFG.defaultRounding||'round', roundTo:CFG.defaultRoundTo||1, overwrite:true,
+            baseCycle: dp && dp.base_cycle ? dp.base_cycle : 'monthly', rounding:CFG.defaultRounding||'round', roundTo:CFG.defaultRoundTo||1, overwrite:true,
             presetId: dp?dp.id:'', presets:CFG.presets||[],
-            discountFields:[{key:'q',label:'Quarterly'},{key:'sa',label:'Semi-Annual'},{key:'a',label:'Annual'},{key:'bi',label:'Biennial'},{key:'tri',label:'Triennial'}],
+            discountFields:[{key:'q',label:'Quarterly',cycleKey:'cQ'},{key:'sa',label:'Semi-Annual',cycleKey:'cSA'},{key:'a',label:'Annual',cycleKey:'cA'},{key:'bi',label:'Biennial',cycleKey:'cBi'},{key:'tri',label:'Triennial',cycleKey:'cTri'}],
             discounts:{q:dp?+dp.discount_quarterly:0,sa:dp?+dp.discount_semiannually:5,a:dp?+dp.discount_annually:10,bi:dp?+dp.discount_biennially:15,tri:dp?+dp.discount_triennially:20},
             setupDiscounts:{q:dp?+(dp.discount_setup_quarterly||0):0,sa:dp?+(dp.discount_setup_semiannually||0):5,a:dp?+(dp.discount_setup_annually||0):10,bi:dp?+(dp.discount_setup_biennially||0):15,tri:dp?+(dp.discount_setup_triennially||0):20},
+            cQ:ec.quarterly, cSA:ec.semiannually, cA:ec.annually, cBi:ec.biennially, cTri:ec.triennially,
             _undoSnap:null,
+
+            _ec:function(){return{quarterly:this.cQ,semiannually:this.cSA,annually:this.cA,biennially:this.cBi,triennially:this.cTri};},
 
             loadPreset:function(){var s=this,p=this.presets.find(function(x){return x.id==s.presetId;});if(!p)return;
                 this.discounts={q:+p.discount_quarterly,sa:+p.discount_semiannually,a:+p.discount_annually,bi:+p.discount_biennially,tri:+p.discount_triennially};
                 this.setupDiscounts={q:+(p.discount_setup_quarterly||0),sa:+(p.discount_setup_semiannually||0),a:+(p.discount_setup_annually||0),bi:+(p.discount_setup_biennially||0),tri:+(p.discount_setup_triennially||0)};
+                this.cQ=p.cycle_quarterly!=0;this.cSA=p.cycle_semiannually!=0;this.cA=p.cycle_annually!=0;this.cBi=p.cycle_biennially!=0;this.cTri=p.cycle_triennially!=0;
+                this.baseCycle=p.base_cycle||'monthly';
                 this.rounding=p.rounding_method;this.roundTo=+p.rounding_precision;Utils.toast('Preset "'+p.name+'" loaded.','info');},
 
             _mgr:function(){var el=document.getElementById('hvn-config-mount');try{return el&&window.Alpine?Alpine.$data(el):null;}catch(e){return null;}},
             _snap:function(){var m=this._mgr();if(m)this._undoSnap=JSON.parse(JSON.stringify(m.groups));},
 
             calcCycles:function(){var m=this._mgr();if(!m){Utils.toast('Manager not ready.','warning');return;}this._snap();
-                var cid=m.activeCurrency,base=this.baseCycle,cnt=0,self=this;
+                var cid=m.activeCurrency,base=this.baseCycle,cnt=0,self=this,ec=this._ec();
                 m.groups.forEach(function(g){g.options.forEach(function(opt){opt.subs.forEach(function(sub){
                     if(!sub.pricing||!sub.pricing[cid])return;var p=sub.pricing[cid];
-                    var bv=Utils.parse(p[base]);if(bv!==null&&bv!==-1){var cc=Calc.cycles(bv,base,self.discounts,self.rounding,self.roundTo);
+                    var bv=Utils.parse(p[base]);if(bv!==null&&bv!==-1){var cc=Calc.cycles(bv,base,self.discounts,self.rounding,self.roundTo,ec);
                         if(cc)for(var c in cc){if(c===base)continue;var cv=Utils.parse(p[c]);if(cv===-1)continue;if(!self.overwrite&&cv!==null&&cv!==0)continue;p[c]=Utils.fmt(cc[c]);cnt++;}}
-                    var bsk=Calc.SETUP_MAP[base],bs=Utils.parse(p[bsk]);if(bs!==null&&bs!==-1&&bs!==0){var sc=Calc.setupFees(bs,base,self.setupDiscounts,self.rounding,self.roundTo);
+                    var bsk=Calc.SETUP_MAP[base],bs=Utils.parse(p[bsk]);if(bs!==null&&bs!==-1&&bs!==0){var sc=Calc.setupFees(bs,base,self.setupDiscounts,self.rounding,self.roundTo,ec);
                         if(sc)for(var sk in sc){if(sk===bsk)continue;var sv=Utils.parse(p[sk]);if(sv===-1)continue;if(!self.overwrite&&sv!==null&&sv!==0)continue;p[sk]=Utils.fmt(sc[sk]);cnt++;}}
                 });});});
                 m.groups=m.groups.slice();Utils.toast('Config cycles: '+cnt+' fields.','success');},
@@ -633,14 +608,22 @@
             presets:[],editing:null,form:{},loading:false,saving:false,
 
             init:async function(){this.form=this._empty();await this.load();},
-            _empty:function(){return{id:0,name:'',discount_quarterly:0,discount_semiannually:0,discount_annually:0,discount_biennially:0,discount_triennially:0,discount_setup_quarterly:0,discount_setup_semiannually:0,discount_setup_annually:0,discount_setup_biennially:0,discount_setup_triennially:0,rounding_method:'round',rounding_precision:1,is_default:false};},
+            _empty:function(){return{id:0,name:'',base_cycle:'monthly',
+                discount_quarterly:0,discount_semiannually:0,discount_annually:0,discount_biennially:0,discount_triennially:0,
+                discount_setup_quarterly:0,discount_setup_semiannually:0,discount_setup_annually:0,discount_setup_biennially:0,discount_setup_triennially:0,
+                cycle_quarterly:true,cycle_semiannually:true,cycle_annually:true,cycle_biennially:true,cycle_triennially:true,
+                rounding_method:'round',rounding_precision:1,is_default:false};},
 
             load:async function(){this.loading=true;var r=await Utils.fetchJson(CFG.ajaxUrl+'&action=get_presets');if(r.success){this.presets=(r.data||[]).map(function(p){p.is_default=p.is_default==1;return p;});}this.loading=false;},
             add:function(){this.form=this._empty();this.editing='new';},
             edit:function(p){
                 var f=JSON.parse(JSON.stringify(p));
-                // Normalize is_default to boolean for checkbox binding
-                f.is_default = (f.is_default == 1 || f.is_default === true || f.is_default === 'true');
+                f.is_default = (f.is_default == 1 || f.is_default === true);
+                f.cycle_quarterly = (f.cycle_quarterly == 1 || f.cycle_quarterly === true);
+                f.cycle_semiannually = (f.cycle_semiannually == 1 || f.cycle_semiannually === true);
+                f.cycle_annually = (f.cycle_annually == 1 || f.cycle_annually === true);
+                f.cycle_biennially = (f.cycle_biennially == 1 || f.cycle_biennially === true);
+                f.cycle_triennially = (f.cycle_triennially == 1 || f.cycle_triennially === true);
                 this.form=f;
                 this.editing=p.id;
             },
@@ -648,9 +631,13 @@
 
             save:async function(){if(!this.form.name||!this.form.name.trim()){Utils.toast('Name required.','warning');return;}
                 this.saving=true;
-                // Convert is_default boolean to "1"/"0" for PHP
                 var formData = Object.assign({}, this.form);
                 formData.is_default = formData.is_default ? '1' : '0';
+                formData.cycle_quarterly = formData.cycle_quarterly ? '1' : '0';
+                formData.cycle_semiannually = formData.cycle_semiannually ? '1' : '0';
+                formData.cycle_annually = formData.cycle_annually ? '1' : '0';
+                formData.cycle_biennially = formData.cycle_biennially ? '1' : '0';
+                formData.cycle_triennially = formData.cycle_triennially ? '1' : '0';
                 var r=await Utils.fetchJson(CFG.ajaxUrl+'&action=save_preset',{method:'POST',body:new URLSearchParams(formData),headers:{'Content-Type':'application/x-www-form-urlencoded'}});
                 if(r.success){Utils.toast('Saved!','success');this.editing=null;await this.load();}else Utils.toast('Error: '+(r.error||''),'error');this.saving=false;},
 
@@ -660,9 +647,7 @@
     }
 
     /* ================================================================
-       REGISTER ALL ALPINE COMPONENTS
-       This runs when Alpine fires its `alpine:init` event,
-       BEFORE it scans the DOM for x-data attributes.
+       REGISTER ALPINE COMPONENTS
        ================================================================ */
     document.addEventListener('alpine:init', function () {
         Alpine.data('hvnToolbar', toolbarData);
@@ -672,19 +657,15 @@
     });
 
     /* ================================================================
-       CONFIG MANAGER: inject HTML into product tab 5
-       Since this is dynamic (loaded after tab click), we inject via JS
-       but use Alpine.initTree() to make Alpine process the new element.
+       CONFIG MANAGER: inject into product tab 5
        ================================================================ */
     function initConfigManager() {
         if (!CFG.page || CFG.page.type !== 'product_edit' || !CFG.page.product_id) return;
-
         var injected = false;
         var attempt = function () {
             if (injected || document.getElementById('hvn-config-mount')) { injected = true; return; }
             var tab = findConfigTab();
             if (!tab) return;
-
             var mount = document.createElement('div');
             mount.id = 'hvn-config-mount';
             mount.setAttribute('x-data', 'hvnConfigManager()');
@@ -693,14 +674,8 @@
             mount.innerHTML = buildConfigManagerHTML();
             tab.appendChild(mount);
             injected = true;
-
-            // Tell Alpine to process the new tree
-            if (window.Alpine && window.Alpine.initTree) {
-                window.Alpine.initTree(mount);
-            }
+            if (window.Alpine && window.Alpine.initTree) window.Alpine.initTree(mount);
         };
-
-        // Try on hash match
         var onNav = function () {
             var h = window.location.hash;
             if (h.indexOf('tab=5') !== -1 || h.indexOf('tab5') !== -1) setTimeout(attempt, 300);
@@ -761,9 +736,10 @@
         h+='<template x-if="option.optiontype==4"><span class="hvn-text-xs hvn-text-muted" x-text="\'Min:\'+option.qtyminimum+\'/Max:\'+option.qtymaximum"></span></template>';
         h+='<label class="hvn-toggle hvn-text-xs" style="height:22px;padding:2px 6px"><input type="checkbox" :checked="option.hidden==1" @change="option.hidden=$event.target.checked?1:0"> Hidden</label></div>';
 
+        // Full labels for table headers
         h+='<div style="overflow-x:auto"><table class="hvn-ptable"><thead><tr><th style="min-width:140px">Sub-option</th><th>Hide</th>';
-        h+='<th>Monthly</th><th>Q</th><th>SA</th><th>A</th><th>Bi</th><th>Tri</th>';
-        h+='<th>M Fee</th><th>Q Fee</th><th>SA Fee</th><th>A Fee</th><th>Bi Fee</th><th>Tri Fee</th></tr></thead><tbody>';
+        h+='<th>Monthly</th><th>Quarterly</th><th>Semi-Ann.</th><th>Annual</th><th>Biennial</th><th>Triennial</th>';
+        h+='<th>M Setup</th><th>Q Setup</th><th>SA Setup</th><th>A Setup</th><th>Bi Setup</th><th>Tri Setup</th></tr></thead><tbody>';
 
         h+='<template x-for="sub in option.subs" :key="sub.id"><tr><td :title="sub.name" x-text="sub.name"></td>';
         h+='<td><input type="checkbox" :checked="sub.hidden==1" @change="sub.hidden=$event.target.checked?1:0"></td>';
@@ -792,11 +768,18 @@
         h+='<div class="hvn-group"><label>To:</label><select class="hvn-select" x-model.number="roundTo"><option value="0.01">0.01</option><option value="1">1</option><option value="100">100</option><option value="1000">1,000</option><option value="10000">10,000</option></select></div>';
         h+='<label class="hvn-toggle"><input type="checkbox" x-model="overwrite"> Overwrite existing</label></div>';
 
-        h+='<div class="hvn-toolbar-row"><div class="hvn-discounts"><label style="font-weight:600;color:var(--hvn-text-secondary);font-size:12px">Discounts:</label>';
-        h+='<template x-for="d in discountFields" :key="d.key"><div class="hvn-discount"><label x-text="d.label"></label><input type="number" x-model.number="discounts[d.key]" min="0" max="100" step="0.5" class="hvn-input hvn-input--num"><span class="hvn-pct">%</span></div></template></div></div>';
+        // Cycle toggles row
+        h+='<div class="hvn-toolbar-row"><div class="hvn-discounts"><label class="hvn-discounts__label" style="font-weight:600;color:var(--hvn-text-secondary);font-size:12px">Cycles:</label><div class="hvn-discounts__fields">';
+        [['cQ','Quarterly'],['cSA','Semi-Annual'],['cA','Annual'],['cBi','Biennial'],['cTri','Triennial']].forEach(function(d){
+            h+='<label class="hvn-cycle-toggle hvn-cycle-toggle--inline" :class="{\'hvn-cycle-toggle--active\':'+d[0]+'}"><input type="checkbox" x-model="'+d[0]+'" style="display:none"><span class="hvn-cycle-toggle__check" x-text="'+d[0]+'?\'✓\':\'✕\'"></span>'+d[1]+'</label>';
+        });
+        h+='</div></div></div>';
 
-        h+='<div class="hvn-toolbar-row"><div class="hvn-discounts"><label style="font-weight:600;color:var(--hvn-text-secondary);font-size:12px">Setup Fee:</label>';
-        h+='<template x-for="d in discountFields" :key="\'s\'+d.key"><div class="hvn-discount"><label x-text="d.label"></label><input type="number" x-model.number="setupDiscounts[d.key]" min="0" max="100" step="0.5" class="hvn-input hvn-input--num"><span class="hvn-pct">%</span></div></template></div></div>';
+        h+='<div class="hvn-toolbar-row"><div class="hvn-discounts"><label class="hvn-discounts__label" style="font-weight:600;color:var(--hvn-text-secondary);font-size:12px">Discounts:</label><div class="hvn-discounts__fields">';
+        h+='<template x-for="d in discountFields" :key="d.key"><div class="hvn-discount" :class="{\'hvn-form-discount--disabled\':!$data[d.cycleKey]}"><label x-text="d.label"></label><input type="number" x-model.number="discounts[d.key]" min="0" max="100" step="0.5" class="hvn-input hvn-input--num" :disabled="!$data[d.cycleKey]"><span class="hvn-pct">%</span></div></template></div></div></div>';
+
+        h+='<div class="hvn-toolbar-row"><div class="hvn-discounts"><label class="hvn-discounts__label" style="font-weight:600;color:var(--hvn-text-secondary);font-size:12px">Setup Fee:</label><div class="hvn-discounts__fields">';
+        h+='<template x-for="d in discountFields" :key="\'s\'+d.key"><div class="hvn-discount" :class="{\'hvn-form-discount--disabled\':!$data[d.cycleKey]}"><label x-text="d.label"></label><input type="number" x-model.number="setupDiscounts[d.key]" min="0" max="100" step="0.5" class="hvn-input hvn-input--num" :disabled="!$data[d.cycleKey]"><span class="hvn-pct">%</span></div></template></div></div></div>';
 
         h+='<div class="hvn-toolbar-row"><div class="hvn-actions">';
         h+='<button type="button" class="hvn-btn hvn-btn--primary hvn-btn--sm" @click="calcCycles()">📊 Calc Cycles</button>';
@@ -811,100 +794,63 @@
        BOOT
        ================================================================ */
     function boot() {
-        // Config manager for product edit tab 5
-        if (CFG.page && CFG.page.type === 'product_edit') {
-            initConfigManager();
-        }
-
-        // For popup pages (config_options) where toolbar HTML is NOT
-        // injected by PHP (no AdminAreaFooterOutput), create toolbar via JS.
-        // Alpine.initTree() will make Alpine process it.
-        if (CFG.page && CFG.page.type === 'config_options') {
-            injectToolbarForPopup();
-        }
+        if (CFG.page && CFG.page.type === 'product_edit') initConfigManager();
+        if (CFG.page && CFG.page.type === 'config_options') injectToolbarForPopup();
     }
 
-    /**
-     * Inject toolbar into popup pages where PHP cannot add to <body>.
-     * Creates the toolbar element and uses Alpine.initTree() after Alpine loads.
-     */
     function injectToolbarForPopup() {
-        // Wait for Alpine to be ready, then inject + initialize
         var tryInject = function () {
             if (document.getElementById('hvn-toolbar-mount')) return;
-
-            // Find pricing inputs
             var target = document.querySelector('input[name^="price["]');
             if (!target) return;
-
             var container = target.closest('table') || target.closest('form');
             if (!container) return;
-
-            // Build toolbar HTML (same as PHP renders for normal pages)
             var div = document.createElement('div');
             div.id = 'hvn-toolbar-mount';
             div.setAttribute('x-data', 'hvnToolbar()');
             div.innerHTML = getToolbarInnerHTML();
-
             container.parentNode.insertBefore(div, container);
-
-            // Tell Alpine to process this new tree
-            if (window.Alpine && window.Alpine.initTree) {
-                window.Alpine.initTree(div);
-            }
+            if (window.Alpine && window.Alpine.initTree) window.Alpine.initTree(div);
         };
-
-        // Try multiple times — Alpine may not be ready yet
         setTimeout(tryInject, 100);
         setTimeout(tryInject, 500);
         setTimeout(tryInject, 1500);
-
-        // Also listen for Alpine ready
         document.addEventListener('alpine:initialized', tryInject);
     }
 
-    /**
-     * Get toolbar inner HTML (matches PHP-rendered toolbar structure).
-     */
     function getToolbarInnerHTML() {
         var h = '<div class="hvn-toolbar">';
 
-        h += '<div class="hvn-toolbar-header">';
-        h += '<span class="hvn-toolbar-title">⚡ HVN Pricing Calculator</span>';
-        h += '<div class="hvn-group"><label>Preset:</label>';
-        h += '<select class="hvn-select" x-model="presetId" @change="loadPreset()">';
-        h += '<template x-for="p in presets" :key="p.id"><option :value="p.id" x-text="p.name"></option></template>';
-        h += '</select></div></div>';
+        h += '<div class="hvn-toolbar-header"><span class="hvn-toolbar-title">⚡ HVN Pricing Calculator</span>';
+        h += '<div class="hvn-group"><label>Preset:</label><select class="hvn-select" x-model="presetId" @change="loadPreset()">';
+        h += '<template x-for="p in presets" :key="p.id"><option :value="p.id" x-text="p.name"></option></template></select></div></div>';
 
-        h += '<div class="hvn-toolbar-hint">';
-        h += 'Enter the <strong>base price</strong> (Monthly or Annually) in the default currency, then click ';
-        h += '<strong>Calc All</strong> to auto-fill all cycles and currencies. Cells with <strong>-1.00</strong> (disabled) are skipped.';
-        h += '</div>';
+        h += '<div class="hvn-toolbar-hint">Enter the <strong>base price</strong> in the default currency, then click <strong>Calc All</strong>. Disabled cycles and cells with <strong>-1.00</strong> are skipped.</div>';
 
         h += '<div class="hvn-toolbar-row">';
-        h += '<div class="hvn-group"><label>Base:</label><select class="hvn-select" x-model="baseCycle">';
-        h += '<option value="monthly">Monthly</option><option value="annually">Annually</option></select></div>';
-        h += '<div class="hvn-group"><label>Round:</label><select class="hvn-select" x-model="rounding">';
-        h += '<option value="none">None</option><option value="ceil">Ceil</option><option value="floor">Floor</option><option value="round">Nearest</option></select></div>';
-        h += '<div class="hvn-group"><label>To:</label><select class="hvn-select" x-model.number="roundTo">';
-        h += '<option value="0.01">0.01</option><option value="1">1</option><option value="100">100</option>';
-        h += '<option value="1000">1,000</option><option value="10000">10,000</option></select></div>';
-        h += '<label class="hvn-toggle"><input type="checkbox" x-model="overwrite"> Overwrite existing</label>';
-        h += '</div>';
+        h += '<div class="hvn-group"><label>Base:</label><select class="hvn-select" x-model="baseCycle"><option value="monthly">Monthly</option><option value="annually">Annually</option></select></div>';
+        h += '<div class="hvn-group"><label>Round:</label><select class="hvn-select" x-model="rounding"><option value="none">None</option><option value="ceil">Ceil</option><option value="floor">Floor</option><option value="round">Nearest</option></select></div>';
+        h += '<div class="hvn-group"><label>To:</label><select class="hvn-select" x-model.number="roundTo"><option value="0.01">0.01</option><option value="1">1</option><option value="100">100</option><option value="1000">1,000</option><option value="10000">10,000</option></select></div>';
+        h += '<label class="hvn-toggle"><input type="checkbox" x-model="overwrite"> Overwrite existing</label></div>';
+
+        // Cycle toggles
+        h += '<div class="hvn-toolbar-row"><div class="hvn-discounts"><label class="hvn-discounts__label">Cycles:</label><div class="hvn-discounts__fields">';
+        [['cQ','Quarterly'],['cSA','Semi-Annual'],['cA','Annual'],['cBi','Biennial'],['cTri','Triennial']].forEach(function(d){
+            h+='<label class="hvn-cycle-toggle hvn-cycle-toggle--inline" :class="{\'hvn-cycle-toggle--active\':'+d[0]+'}"><input type="checkbox" x-model="'+d[0]+'" style="display:none"><span class="hvn-cycle-toggle__check" x-text="'+d[0]+'?\'✓\':\'✕\'"></span>'+d[1]+'</label>';
+        });
+        h += '</div></div></div>';
 
         // Discounts
-        h += '<div class="hvn-toolbar-row"><div class="hvn-discounts">';
-        h += '<label class="hvn-discounts__label">Discounts:</label><div class="hvn-discounts__fields">';
-        [['dQ','Quarterly'],['dSA','Semi-Annual'],['dA','Annual'],['dBi','Biennial'],['dTri','Triennial']].forEach(function(d){
-            h+='<div class="hvn-discount"><label>'+d[1]+'</label><input type="number" x-model.number="'+d[0]+'" min="0" max="100" step="0.5"><span class="hvn-pct">%</span></div>';
+        h += '<div class="hvn-toolbar-row"><div class="hvn-discounts"><label class="hvn-discounts__label">Discounts:</label><div class="hvn-discounts__fields">';
+        [['dQ','Quarterly','cQ'],['dSA','Semi-Annual','cSA'],['dA','Annual','cA'],['dBi','Biennial','cBi'],['dTri','Triennial','cTri']].forEach(function(d){
+            h+='<div class="hvn-discount" :class="{\'hvn-form-discount--disabled\':!'+d[2]+'}"><label>'+d[1]+'</label><input type="number" x-model.number="'+d[0]+'" min="0" max="100" step="0.5" :disabled="!'+d[2]+'"><span class="hvn-pct">%</span></div>';
         });
         h += '</div></div></div>';
 
         // Setup fee
-        h += '<div class="hvn-toolbar-row"><div class="hvn-discounts">';
-        h += '<label class="hvn-discounts__label">Setup Fee:</label><div class="hvn-discounts__fields">';
-        [['sdQ','Quarterly'],['sdSA','Semi-Annual'],['sdA','Annual'],['sdBi','Biennial'],['sdTri','Triennial']].forEach(function(d){
-            h+='<div class="hvn-discount"><label>'+d[1]+'</label><input type="number" x-model.number="'+d[0]+'" min="0" max="100" step="0.5"><span class="hvn-pct">%</span></div>';
+        h += '<div class="hvn-toolbar-row"><div class="hvn-discounts"><label class="hvn-discounts__label">Setup Fee:</label><div class="hvn-discounts__fields">';
+        [['sdQ','Quarterly','cQ'],['sdSA','Semi-Annual','cSA'],['sdA','Annual','cA'],['sdBi','Biennial','cBi'],['sdTri','Triennial','cTri']].forEach(function(d){
+            h+='<div class="hvn-discount" :class="{\'hvn-form-discount--disabled\':!'+d[2]+'}"><label>'+d[1]+'</label><input type="number" x-model.number="'+d[0]+'" min="0" max="100" step="0.5" :disabled="!'+d[2]+'"><span class="hvn-pct">%</span></div>';
         });
         h += '</div></div></div>';
 
@@ -916,18 +862,13 @@
         h += '</div></div>';
 
         h += '<template x-if="showRates"><div class="hvn-currency-info">ℹ ';
-        h += '<template x-for="c in currencies" :key="c.id"><span class="hvn-rate" :class="{\'hvn-rate--default\':c.default==1}">';
-        h += '<span x-text="c.code"></span> (rate: <span x-text="parseFloat(c.rate).toFixed(7)"></span>)';
-        h += '<template x-if="c.default==1"> <strong>(default)</strong></template> </span></template>';
-        h += '</div></template>';
-
-        h += '</div>';
+        h += '<template x-for="c in currencies" :key="c.id"><span class="hvn-rate" :class="{\'hvn-rate--default\':c.default==1}"><span x-text="c.code"></span> (rate: <span x-text="parseFloat(c.rate).toFixed(7)"></span>)<template x-if="c.default==1"> <strong>(default)</strong></template> </span></template>';
+        h += '</div></template></div>';
         return h;
     }
 
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
     else boot();
 
-    // Debug
     window.HvnPricing = { Utils: Utils, Calc: Calc, PricingDOM: PricingDOM, Undo: Undo };
 })();

@@ -9,7 +9,7 @@
  * @author     HVN GROUP
  * @copyright  2026 HVN GROUP
  * @license    Proprietary
- * @version    1.0.0
+ * @version    1.1.0
  * @link       https://hvn.vn
  */
 
@@ -29,7 +29,7 @@ function hvn_pricing_calculator_config(): array
     return [
         'name'        => 'HVN - Pricing Calculator',
         'description' => 'Auto-calculate billing cycle pricing and currency conversion for Products, Configurable Options and Addons.',
-        'version'     => '1.0.0',
+        'version'     => '1.1.0',
         'author'      => '<a href="https://hvn.vn" target="_blank">HVN GROUP</a>',
         'language'    => 'english',
         'fields'      => [
@@ -87,16 +87,26 @@ function hvn_pricing_calculator_activate(): array
                 /** @var \Illuminate\Database\Schema\Blueprint $table */
                 $table->increments('id');
                 $table->string('name', 100);
+                $table->string('base_cycle', 20)->default('monthly');
+                // Recurring discounts
                 $table->decimal('discount_quarterly', 5, 2)->default(0.00);
                 $table->decimal('discount_semiannually', 5, 2)->default(0.00);
                 $table->decimal('discount_annually', 5, 2)->default(0.00);
                 $table->decimal('discount_biennially', 5, 2)->default(0.00);
                 $table->decimal('discount_triennially', 5, 2)->default(0.00);
+                // Setup fee discounts
                 $table->decimal('discount_setup_quarterly', 5, 2)->default(0.00);
                 $table->decimal('discount_setup_semiannually', 5, 2)->default(0.00);
                 $table->decimal('discount_setup_annually', 5, 2)->default(0.00);
                 $table->decimal('discount_setup_biennially', 5, 2)->default(0.00);
                 $table->decimal('discount_setup_triennially', 5, 2)->default(0.00);
+                // Cycle enable/disable toggles (1 = enabled, 0 = skip)
+                $table->tinyInteger('cycle_quarterly')->default(1);
+                $table->tinyInteger('cycle_semiannually')->default(1);
+                $table->tinyInteger('cycle_annually')->default(1);
+                $table->tinyInteger('cycle_biennially')->default(1);
+                $table->tinyInteger('cycle_triennially')->default(1);
+                // Rounding
                 $table->enum('rounding_method', ['none', 'ceil', 'floor', 'round'])->default('round');
                 $table->decimal('rounding_precision', 10, 2)->default(1.00);
                 $table->tinyInteger('is_default')->default(0);
@@ -105,46 +115,55 @@ function hvn_pricing_calculator_activate(): array
             });
         }
 
-        // Seed default presets
+        // Seed 9 default presets: 3 discount levels × 3 cycle profiles
         $now = date('Y-m-d H:i:s');
-        $presets = [
-            [
-                'name' => 'No Discount',
-                'discount_quarterly' => 0, 'discount_semiannually' => 0,
-                'discount_annually' => 0, 'discount_biennially' => 0,
-                'discount_triennially' => 0,
-                'discount_setup_quarterly' => 0, 'discount_setup_semiannually' => 0,
-                'discount_setup_annually' => 0, 'discount_setup_biennially' => 0,
-                'discount_setup_triennially' => 0,
-                'rounding_method' => 'round', 'rounding_precision' => 1.00,
-                'is_default' => 0, 'sort_order' => 1,
-                'created_at' => $now, 'updated_at' => $now,
-            ],
-            [
-                'name' => 'Standard',
-                'discount_quarterly' => 0, 'discount_semiannually' => 5,
-                'discount_annually' => 10, 'discount_biennially' => 15,
-                'discount_triennially' => 20,
-                'discount_setup_quarterly' => 0, 'discount_setup_semiannually' => 5,
-                'discount_setup_annually' => 10, 'discount_setup_biennially' => 15,
-                'discount_setup_triennially' => 20,
-                'rounding_method' => 'round', 'rounding_precision' => 1.00,
-                'is_default' => 1, 'sort_order' => 2,
-                'created_at' => $now, 'updated_at' => $now,
-            ],
-            [
-                'name' => 'Aggressive',
-                'discount_quarterly' => 5, 'discount_semiannually' => 10,
-                'discount_annually' => 20, 'discount_biennially' => 25,
-                'discount_triennially' => 30,
-                'discount_setup_quarterly' => 5, 'discount_setup_semiannually' => 10,
-                'discount_setup_annually' => 20, 'discount_setup_biennially' => 25,
-                'discount_setup_triennially' => 30,
-                'rounding_method' => 'round', 'rounding_precision' => 1.00,
-                'is_default' => 0, 'sort_order' => 3,
-                'created_at' => $now, 'updated_at' => $now,
-            ],
+        $base = [
+            'discount_setup_quarterly' => 0, 'discount_setup_semiannually' => 0,
+            'discount_setup_annually' => 0, 'discount_setup_biennially' => 0,
+            'discount_setup_triennially' => 0,
+            'rounding_method' => 'round', 'rounding_precision' => 1.00,
+            'is_default' => 0, 'created_at' => $now, 'updated_at' => $now,
         ];
+
+        $discountLevels = [
+            'No Discount' => ['q' => 0, 'sa' => 0, 'a' => 0, 'bi' => 0, 'tri' => 0],
+            'Standard'    => ['q' => 0, 'sa' => 5, 'a' => 10, 'bi' => 15, 'tri' => 20],
+            'Aggressive'  => ['q' => 5, 'sa' => 10, 'a' => 20, 'bi' => 25, 'tri' => 30],
+        ];
+
+        $cycleProfiles = [
+            'All Cycles'  => ['base' => 'monthly',  'q' => 1, 'sa' => 1, 'a' => 1, 'bi' => 1, 'tri' => 1],
+            'Flexible'    => ['base' => 'monthly',  'q' => 1, 'sa' => 1, 'a' => 1, 'bi' => 0, 'tri' => 0],
+            'Annual Only' => ['base' => 'annually', 'q' => 0, 'sa' => 0, 'a' => 0, 'bi' => 1, 'tri' => 1],
+        ];
+
+        $order = 1;
+        $presets = [];
+        foreach ($cycleProfiles as $profileName => $profile) {
+            foreach ($discountLevels as $levelName => $discounts) {
+                $presets[] = array_merge($base, [
+                    'name' => $levelName . ' — ' . $profileName,
+                    'base_cycle' => $profile['base'],
+                    'discount_quarterly'    => $discounts['q'],
+                    'discount_semiannually' => $discounts['sa'],
+                    'discount_annually'     => $discounts['a'],
+                    'discount_biennially'   => $discounts['bi'],
+                    'discount_triennially'  => $discounts['tri'],
+                    'discount_setup_quarterly'    => $discounts['q'],
+                    'discount_setup_semiannually' => $discounts['sa'],
+                    'discount_setup_annually'     => $discounts['a'],
+                    'discount_setup_biennially'   => $discounts['bi'],
+                    'discount_setup_triennially'  => $discounts['tri'],
+                    'cycle_quarterly'    => $profile['q'],
+                    'cycle_semiannually' => $profile['sa'],
+                    'cycle_annually'     => $profile['a'],
+                    'cycle_biennially'   => $profile['bi'],
+                    'cycle_triennially'  => $profile['tri'],
+                    'is_default' => ($levelName === 'Standard' && $profileName === 'All Cycles') ? 1 : 0,
+                    'sort_order' => $order++,
+                ]);
+            }
+        }
 
         foreach ($presets as $preset) {
             $exists = Capsule::table('tbl_hvn_pricing_presets')
@@ -199,7 +218,7 @@ function hvn_pricing_calculator_upgrade(array $vars): void
 {
     $currentVersion = $vars['version'];
 
-    // v1.1.0: Add setup fee discount columns
+    // v1.1.0: Add cycle enable/disable columns + setup fee discount columns
     if (version_compare($currentVersion, '1.1.0', '<')) {
         try {
             $columns = [
@@ -214,6 +233,27 @@ function hvn_pricing_calculator_upgrade(array $vars): void
                     });
                 }
             }
+
+            // Add cycle toggle columns
+            $cycleColumns = [
+                'cycle_quarterly', 'cycle_semiannually',
+                'cycle_annually', 'cycle_biennially', 'cycle_triennially',
+            ];
+            foreach ($cycleColumns as $col) {
+                if (!Capsule::schema()->hasColumn('tbl_hvn_pricing_presets', $col)) {
+                    Capsule::schema()->table('tbl_hvn_pricing_presets', function ($table) use ($col) {
+                        $table->tinyInteger($col)->default(1);
+                    });
+                }
+            }
+
+            // Add base_cycle column
+            if (!Capsule::schema()->hasColumn('tbl_hvn_pricing_presets', 'base_cycle')) {
+                Capsule::schema()->table('tbl_hvn_pricing_presets', function ($table) {
+                    $table->string('base_cycle', 20)->default('monthly')->after('name');
+                });
+            }
+
             logActivity('HVN - Pricing Calculator: Upgraded to v1.1.0.');
         } catch (\Exception $e) {
             logActivity('HVN - Pricing Calculator: Upgrade to v1.1.0 failed — ' . $e->getMessage());
@@ -241,7 +281,6 @@ function hvn_pricing_calculator_output(array $vars): void
         return;
     }
 
-    // Render page
     switch ($action) {
         case 'presets':
             hvn_pricing_calculator_renderPresets($vars);
@@ -272,6 +311,7 @@ function hvn_pricing_calculator_handleAjax(string $action): void
                 $id   = (int) ($_POST['id'] ?? 0);
                 $data = [
                     'name'                         => trim($_POST['name'] ?? ''),
+                    'base_cycle'                   => in_array($_POST['base_cycle'] ?? '', ['monthly','annually']) ? $_POST['base_cycle'] : 'monthly',
                     'discount_quarterly'            => max(0, min(100, (float) ($_POST['discount_quarterly'] ?? 0))),
                     'discount_semiannually'         => max(0, min(100, (float) ($_POST['discount_semiannually'] ?? 0))),
                     'discount_annually'             => max(0, min(100, (float) ($_POST['discount_annually'] ?? 0))),
@@ -282,6 +322,11 @@ function hvn_pricing_calculator_handleAjax(string $action): void
                     'discount_setup_annually'       => max(0, min(100, (float) ($_POST['discount_setup_annually'] ?? 0))),
                     'discount_setup_biennially'     => max(0, min(100, (float) ($_POST['discount_setup_biennially'] ?? 0))),
                     'discount_setup_triennially'    => max(0, min(100, (float) ($_POST['discount_setup_triennially'] ?? 0))),
+                    'cycle_quarterly'               => in_array($_POST['cycle_quarterly'] ?? '', ['1', 'true', 'on'], true) ? 1 : 0,
+                    'cycle_semiannually'            => in_array($_POST['cycle_semiannually'] ?? '', ['1', 'true', 'on'], true) ? 1 : 0,
+                    'cycle_annually'                => in_array($_POST['cycle_annually'] ?? '', ['1', 'true', 'on'], true) ? 1 : 0,
+                    'cycle_biennially'              => in_array($_POST['cycle_biennially'] ?? '', ['1', 'true', 'on'], true) ? 1 : 0,
+                    'cycle_triennially'             => in_array($_POST['cycle_triennially'] ?? '', ['1', 'true', 'on'], true) ? 1 : 0,
                     'rounding_method'               => in_array($_POST['rounding_method'] ?? '', ['none','ceil','floor','round']) ? $_POST['rounding_method'] : 'round',
                     'rounding_precision'            => (float) ($_POST['rounding_precision'] ?? 1),
                     'is_default'                    => in_array($_POST['is_default'] ?? '', ['1', 'true', 'on'], true) ? 1 : 0,
@@ -346,7 +391,6 @@ function hvn_pricing_calculator_handleAjax(string $action): void
                 }
                 $count = hvn_pricing_calculator_saveConfigOptionsPricing($pricing);
 
-                // Save hidden states for options
                 $hiddenOptions = json_decode($_POST['hidden_options'] ?? '[]', true);
                 if (is_array($hiddenOptions)) {
                     foreach ($hiddenOptions as $item) {
@@ -360,7 +404,6 @@ function hvn_pricing_calculator_handleAjax(string $action): void
                     }
                 }
 
-                // Save hidden states for sub-options
                 $hiddenSubs = json_decode($_POST['hidden_subs'] ?? '[]', true);
                 if (is_array($hiddenSubs)) {
                     foreach ($hiddenSubs as $item) {
@@ -374,7 +417,7 @@ function hvn_pricing_calculator_handleAjax(string $action): void
                     }
                 }
 
-                logActivity("HVN - Pricing Calculator: Saved {$count} config option pricing records + hidden states.");
+                logActivity("HVN - Pricing Calculator: Saved {$count} config option pricing records.");
                 echo json_encode(['success' => true, 'count' => $count]);
                 break;
 
@@ -455,7 +498,7 @@ function hvn_pricing_calculator_handleAjax(string $action): void
 }
 
 /**
- * Fetch config options data for a product (groups, options, sub-options, pricing).
+ * Fetch config options data for a product.
  */
 function hvn_pricing_calculator_getConfigOptionsData(int $productId): array
 {
@@ -543,32 +586,26 @@ function hvn_pricing_calculator_getConfigOptionsData(int $productId): array
 }
 
 /**
- * Save config options pricing. Returns number of records saved.
+ * Save config options pricing.
  */
 function hvn_pricing_calculator_saveConfigOptionsPricing(array $pricingData): int
 {
     $count = 0;
-    $cycles = ['monthly','quarterly','semiannually','annually','biennially','triennially'];
-    $setupFees = ['msetupfee','qsetupfee','ssetupfee','asetupfee','bsetupfee','tsetupfee'];
-    $allFields = array_merge($cycles, $setupFees);
+    $allFields = [
+        'monthly','quarterly','semiannually','annually','biennially','triennially',
+        'msetupfee','qsetupfee','ssetupfee','asetupfee','bsetupfee','tsetupfee',
+    ];
 
     foreach ($pricingData as $item) {
         $subId      = (int) ($item['sub_id'] ?? 0);
         $currencyId = (int) ($item['currency_id'] ?? 0);
-        if ($subId <= 0 || $currencyId <= 0) {
-            continue;
-        }
+        if ($subId <= 0 || $currencyId <= 0) continue;
 
         $values = [];
         foreach ($allFields as $field) {
-            if (isset($item[$field])) {
-                $values[$field] = $item[$field];
-            }
+            if (isset($item[$field])) $values[$field] = $item[$field];
         }
-
-        if (empty($values)) {
-            continue;
-        }
+        if (empty($values)) continue;
 
         $exists = Capsule::table('tblpricing')
             ->where('type', 'configoptions')
