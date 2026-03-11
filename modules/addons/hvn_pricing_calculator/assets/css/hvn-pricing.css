@@ -81,7 +81,6 @@
     border-radius: 2px;
 }
 
-/* --- Toolbar Rows --- */
 .hvn-toolbar-row {
     display: flex;
     flex-wrap: wrap;
@@ -94,7 +93,6 @@
     margin-bottom: 0;
 }
 
-/* --- Toolbar Hint --- */
 .hvn-toolbar-hint {
     font-size: var(--hvn-font-sm);
     color: var(--hvn-text-tertiary);
@@ -110,7 +108,6 @@
     color: var(--hvn-blue);
 }
 
-/* --- Form Group --- */
 .hvn-group {
     display: flex;
     align-items: center;
@@ -126,7 +123,7 @@
 }
 
 /* ============================================================
-   INPUTS (Ant Design)
+   INPUTS
    ============================================================ */
 .hvn-select,
 .hvn-input {
@@ -170,7 +167,7 @@
 }
 
 /* ============================================================
-   DISCOUNT ROW — full width, evenly distributed
+   DISCOUNT ROW
    ============================================================ */
 .hvn-discounts {
     display: flex;
@@ -219,7 +216,7 @@
     white-space: nowrap;
     min-width: 0;
     flex-shrink: 0;
-    margin-bottom: 0
+    margin-bottom: 0;
 }
 
 .hvn-discount input {
@@ -309,7 +306,7 @@
 }
 
 /* ============================================================
-   BUTTONS (Ant Design)
+   BUTTONS
    ============================================================ */
 .hvn-actions {
     display: flex;
@@ -371,6 +368,7 @@
 .hvn-btn--xs { padding: 0 8px; height: 24px; font-size: var(--hvn-font-sm); border-radius: 4px; }
 .hvn-btn--sm { padding: 0 12px; height: 28px; font-size: var(--hvn-font-sm); }
 .hvn-btn--lg { padding: 4px 20px; height: 40px; font-size: 16px; border-radius: var(--hvn-radius); }
+.hvn-btn--block { width: 100%; justify-content: center; }
 
 /* ============================================================
    CURRENCY INFO
@@ -417,7 +415,7 @@
 }
 
 /* ============================================================
-   TOAST (Ant message style — top center)
+   TOAST
    ============================================================ */
 .hvn-toast-container {
     position: fixed;
@@ -494,7 +492,7 @@
     border-radius: 2px;
 }
 
-/* --- Currency Tabs (segmented control) --- */
+/* --- Currency Tabs --- */
 .hvn-tabs {
     display: inline-flex;
     background: var(--hvn-bg-layout);
@@ -528,7 +526,7 @@
     font-weight: 600;
 }
 
-/* --- Option Group (collapse panel) --- */
+/* --- Option Group --- */
 .hvn-optgroup {
     border: 1px solid var(--hvn-border-light);
     border-radius: var(--hvn-radius);
@@ -581,7 +579,7 @@
 
 .hvn-optgroup__body { padding: 16px; }
 
-/* --- Pricing Table (Ant Table) --- */
+/* --- Pricing Table --- */
 .hvn-ptable {
     width: 100%;
     font-size: var(--hvn-font-sm);
@@ -714,44 +712,129 @@
 }
 
 /* ============================================================
-   PRESET TABLE
+   PRESET ROW CARD LAYOUT
    ============================================================ */
-.hvn-preset-table {
-    width: 100%;
-    font-family: var(--hvn-font);
-    font-size: var(--hvn-font-sm);
-    border-collapse: separate;
-    border-spacing: 0;
-    border: 1px solid var(--hvn-border-light);
-    border-radius: var(--hvn-radius);
-    overflow: hidden;
+.hvn-preset-row {
+    border-bottom: 1px solid var(--hvn-border-light);
+    transition: background 0.15s;
 }
 
-.hvn-preset-table th {
+.hvn-preset-row:last-child {
+    border-bottom: none;
+}
+
+.hvn-preset-row:hover {
     background: #fafafa;
-    font-weight: 600;
+}
+
+.hvn-preset-row__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 20px 8px;
+}
+
+.hvn-preset-row__name {
+    display: flex;
+    align-items: center;
+}
+
+/* --- Actions: tags + buttons with clear separation --- */
+.hvn-preset-row__actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.hvn-preset-row__btn-group {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-left: 10px;
+    padding-left: 10px;
+    border-left: 1px solid var(--hvn-border-light);
+}
+
+.hvn-preset-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 10px;
+    background: var(--hvn-green-bg);
+    border: 1px solid var(--hvn-border-light);
+    border-radius: 4px;
     font-size: var(--hvn-font-xs);
     color: var(--hvn-text-secondary);
-    padding: 10px 12px;
-    text-align: center;
-    border-bottom: 1px solid var(--hvn-border-light);
+    white-space: nowrap;
+}
+
+.hvn-preset-tag strong {
+    color: var(--hvn-text);
+    font-weight: 600;
+}
+
+/* --- Discount body --- */
+.hvn-preset-row__body {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 0 20px 14px;
+}
+
+.hvn-preset-discount-group {
+    display: flex;
+    align-items: center;
+    gap: 0;
+}
+
+.hvn-preset-discount-label {
+    font-size: var(--hvn-font-xs);
+    font-weight: 600;
+    color: var(--hvn-text-tertiary);
     text-transform: uppercase;
     letter-spacing: 0.3px;
+    min-width: 80px;
+    flex-shrink: 0;
 }
 
-.hvn-preset-table td {
-    padding: 10px 12px;
-    border-bottom: 1px solid var(--hvn-border-light);
-    text-align: center;
+.hvn-preset-discount-cells {
+    display: flex;
+    flex: 1;
+    gap: 4px;
+}
+
+.hvn-preset-cell {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    background: var(--hvn-bg-layout);
+    border: 1px solid var(--hvn-border-light);
+    border-radius: 4px;
+    padding: 6px 4px;
+    min-width: 0;
+}
+
+.hvn-preset-cell__cycle {
+    font-size: 10px;
+    font-weight: 500;
+    color: var(--hvn-text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    line-height: 1;
+}
+
+.hvn-preset-cell__val {
+    font-size: 13px;
+    font-weight: 600;
     color: var(--hvn-text);
+    line-height: 1;
 }
-
-.hvn-preset-table tr:last-child td { border-bottom: none; }
-.hvn-preset-table tr:hover td { background: #fafafa; }
-.hvn-preset-table td:first-child { text-align: left; font-weight: 500; }
 
 /* ============================================================
-   CARD (admin pages)
+   CARD
    ============================================================ */
 .hvn-card {
     font-family: var(--hvn-font);
@@ -802,37 +885,11 @@
     margin-top: -1px;
 }
 
-.hvn-stat:first-child {
-    border-radius: var(--hvn-radius-sm) 0 0 var(--hvn-radius-sm);
-}
+.hvn-stat:first-child { border-radius: var(--hvn-radius-sm) 0 0 var(--hvn-radius-sm); }
+.hvn-stat:last-child { border-radius: 0 var(--hvn-radius-sm) var(--hvn-radius-sm) 0; }
 
-.hvn-stat:last-child {
-    border-radius: 0 var(--hvn-radius-sm) var(--hvn-radius-sm) 0;
-}
-
-.hvn-stat__label {
-    font-size: var(--hvn-font-sm);
-    color: var(--hvn-text-tertiary);
-}
-
-.hvn-stat__value {
-    font-size: 24px;
-    font-weight: 600;
-    color: var(--hvn-text);
-    line-height: 1.2;
-}
-
-.hvn-stat__extra {
-    font-size: var(--hvn-font-xs);
-    color: var(--hvn-text-tertiary);
-    margin-top: 2px;
-}
-
-/* --- Full-width button --- */
-.hvn-btn--block {
-    width: 100%;
-    justify-content: center;
-}
+.hvn-stat__label { font-size: var(--hvn-font-sm); color: var(--hvn-text-tertiary); }
+.hvn-stat__value { font-size: 24px; font-weight: 600; color: var(--hvn-text); line-height: 1.2; }
 
 /* --- Tag --- */
 .hvn-tag {
@@ -901,7 +958,6 @@
     gap: 16px;
 }
 
-/* --- Version badge --- */
 .hvn-version {
     font-size: var(--hvn-font-xs);
     color: var(--hvn-text-tertiary);
@@ -910,14 +966,13 @@
     border-radius: 100px;
 }
 
-/* --- Card accent bar (colored left border on title) --- */
+/* --- Card accent bars --- */
 .hvn-card__title--blue::before { content: ''; display: inline-block; width: 4px; height: 18px; background: var(--hvn-blue); border-radius: 2px; }
 .hvn-card__title--green::before { content: ''; display: inline-block; width: 4px; height: 14px; background: var(--hvn-green); border-radius: 2px; }
 .hvn-card__title--gold::before { content: ''; display: inline-block; width: 4px; height: 14px; background: var(--hvn-gold); border-radius: 2px; }
-
 .hvn-card__title--sm { font-size: 14px; }
 
-/* --- Info Table (supported pages) --- */
+/* --- Info Table --- */
 .hvn-info-table {
     width: 100%;
     border-collapse: separate;
@@ -946,18 +1001,9 @@
     color: var(--hvn-text-secondary);
 }
 
-.hvn-info-table tr:last-child td {
-    border-bottom: none;
-}
-
-.hvn-info-table tr:hover td {
-    background: #fafafa;
-}
-
-.hvn-info-table td:first-child {
-    font-weight: 500;
-    color: var(--hvn-text);
-}
+.hvn-info-table tr:last-child td { border-bottom: none; }
+.hvn-info-table tr:hover td { background: #fafafa; }
+.hvn-info-table td:first-child { font-weight: 500; color: var(--hvn-text); }
 
 .hvn-code {
     background: var(--hvn-bg-layout);
@@ -967,7 +1013,6 @@
     font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
 }
 
-/* --- Description text --- */
 .hvn-desc {
     color: var(--hvn-text-secondary);
     margin: 0 0 16px;
@@ -981,19 +1026,11 @@
     color: var(--hvn-text-tertiary);
 }
 
-.hvn-footnote a {
-    color: var(--hvn-blue);
-    text-decoration: none;
-}
-
-.hvn-footnote a:hover {
-    text-decoration: underline;
-}
+.hvn-footnote a { color: var(--hvn-blue); text-decoration: none; }
+.hvn-footnote a:hover { text-decoration: underline; }
 
 /* --- Quick Links --- */
-.hvn-quick-links {
-    padding: 8px 0;
-}
+.hvn-quick-links { padding: 8px 0; }
 
 .hvn-quick-link {
     display: flex;
@@ -1005,10 +1042,7 @@
     transition: background 0.15s;
 }
 
-.hvn-quick-link:hover {
-    background: #fafafa;
-    color: var(--hvn-blue);
-}
+.hvn-quick-link:hover { background: #fafafa; color: var(--hvn-blue); }
 
 .hvn-quick-link__arrow {
     color: var(--hvn-blue);
@@ -1017,11 +1051,130 @@
 }
 
 /* ============================================================
-   PRESET FORM
+   DASHBOARD — Guide, Formulas, Tips
    ============================================================ */
-.hvn-preset-page {
+.hvn-guide-text {
+    color: var(--hvn-text-secondary);
+    font-size: 13px;
+    line-height: 1.7;
+    margin: 0 0 12px;
+}
+
+.hvn-guide-buttons {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+    padding-left: 14px;
+}
+
+.hvn-guide-btn {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 10px;
+    font-size: 12px;
+    font-weight: 600;
+    border-radius: 4px;
+    white-space: nowrap;
+    min-width: 130px;
+    justify-content: center;
+}
+
+.hvn-guide-btn--blue { background: var(--hvn-blue-bg); color: var(--hvn-blue); border: 1px solid var(--hvn-blue-border); }
+.hvn-guide-btn--green { background: var(--hvn-green-bg); color: var(--hvn-green-active); border: 1px solid #b7eb8f; }
+.hvn-guide-btn--default { background: var(--hvn-bg-layout); color: var(--hvn-text-secondary); border: 1px solid var(--hvn-border); }
+
+.hvn-guide-arrow { color: var(--hvn-text-quaternary); font-size: 12px; flex-shrink: 0; }
+.hvn-guide-desc { font-size: 12px; color: var(--hvn-text-tertiary); }
+
+.hvn-formula-block {
+    background: var(--hvn-bg-layout);
+    border: 1px solid var(--hvn-border-light);
+    border-radius: var(--hvn-radius-sm);
+    padding: 12px 16px;
+    font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+    font-size: 12px;
+    line-height: 1.8;
+    color: var(--hvn-text);
+    overflow-x: auto;
+}
+
+.hvn-tips {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.hvn-tip {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    font-size: 13px;
+    line-height: 1.6;
+    color: var(--hvn-text-secondary);
+}
+
+.hvn-tip__icon { flex-shrink: 0; font-size: 14px; }
+
+.hvn-tip__text code {
+    background: var(--hvn-bg-layout);
+    padding: 1px 5px;
+    border-radius: 3px;
+    font-size: 12px;
+}
+
+.hvn-tip__text a { color: var(--hvn-blue); text-decoration: none; }
+.hvn-tip__text a:hover { text-decoration: underline; }
+
+/* ============================================================
+   EXAMPLE TABLE (presets sidebar)
+   ============================================================ */
+.hvn-example-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    border: 1px solid var(--hvn-border-light);
+    border-radius: var(--hvn-radius-sm);
+    overflow: hidden;
+    font-size: var(--hvn-font-sm);
     font-family: var(--hvn-font);
 }
+
+.hvn-example-table th {
+    background: #fafafa;
+    font-weight: 600;
+    font-size: var(--hvn-font-xs);
+    color: var(--hvn-text-secondary);
+    padding: 7px 10px;
+    text-align: left;
+    border-bottom: 1px solid var(--hvn-border-light);
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.hvn-example-table td {
+    padding: 6px 10px;
+    border-bottom: 1px solid var(--hvn-border-light);
+    color: var(--hvn-text-secondary);
+    font-size: var(--hvn-font-sm);
+}
+
+.hvn-example-table tr:last-child td { border-bottom: none; }
+.hvn-example-table tr:hover td { background: #fafafa; }
+.hvn-example-table td:last-child { text-align: right; }
+
+.hvn-example-table code {
+    background: var(--hvn-bg-layout);
+    padding: 1px 5px;
+    border-radius: 3px;
+    font-size: var(--hvn-font-xs);
+    font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+}
+
+/* ============================================================
+   PRESET FORM
+   ============================================================ */
+.hvn-preset-page { font-family: var(--hvn-font); }
 
 .hvn-form-row {
     display: flex;
@@ -1031,26 +1184,12 @@
     align-items: flex-end;
 }
 
-.hvn-form-field {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-}
+.hvn-form-field { display: flex; flex-direction: column; gap: 6px; }
+.hvn-form-field--grow { flex: 1; min-width: 200px; }
+.hvn-form-field--md { min-width: 140px; }
+.hvn-form-field--align-end { display: flex; align-items: flex-end; }
 
-.hvn-form-field--grow {
-    flex: 1;
-    min-width: 200px;
-}
-
-.hvn-form-field--md {
-    min-width: 140px;
-}
-
-.hvn-form-label {
-    font-weight: 500;
-    font-size: 13px;
-    color: var(--hvn-text);
-}
+.hvn-form-label { font-weight: 500; font-size: 13px; color: var(--hvn-text); }
 
 .hvn-form-input {
     height: 36px;
@@ -1078,12 +1217,6 @@ select.hvn-form-input {
     cursor: pointer;
 }
 
-.hvn-form-field--align-end {
-    display: flex;
-    align-items: flex-end;
-}
-
-/* --- Section heading with dot --- */
 .hvn-section-title {
     font-weight: 600;
     font-size: 13px;
@@ -1094,22 +1227,11 @@ select.hvn-form-input {
     gap: 6px;
 }
 
-.hvn-dot {
-    display: inline-block;
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-}
-
+.hvn-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; }
 .hvn-dot--blue { background: var(--hvn-blue); }
 .hvn-dot--green { background: var(--hvn-green); }
 
-/* --- Preset discount row — full width, evenly distributed (same as toolbar) --- */
-.hvn-form-discounts {
-    display: flex;
-    width: 100%;
-    gap: 6px;
-}
+.hvn-form-discounts { display: flex; width: 100%; gap: 6px; }
 
 .hvn-form-discount {
     flex: 1;
@@ -1124,10 +1246,7 @@ select.hvn-form-input {
     min-width: 0;
 }
 
-.hvn-form-discount:hover {
-    border-color: var(--hvn-blue-border);
-    background: var(--hvn-blue-bg);
-}
+.hvn-form-discount:hover { border-color: var(--hvn-blue-border); background: var(--hvn-blue-bg); }
 
 .hvn-form-discount label {
     font-size: var(--hvn-font-sm);
@@ -1151,12 +1270,8 @@ select.hvn-form-input {
     transition: var(--hvn-transition);
 }
 
-.hvn-form-discount input:focus {
-    border-color: var(--hvn-blue);
-    box-shadow: 0 0 0 2px rgba(22, 119, 255, 0.1);
-}
+.hvn-form-discount input:focus { border-color: var(--hvn-blue); box-shadow: 0 0 0 2px rgba(22, 119, 255, 0.1); }
 
-/* --- Form actions bar --- */
 .hvn-form-actions {
     display: flex;
     gap: 8px;
@@ -1164,7 +1279,6 @@ select.hvn-form-input {
     border-top: 1px solid var(--hvn-border-light);
 }
 
-/* --- Column separator in preset table --- */
 .hvn-preset-table .hvn-col-sep {
     border-left: 2px solid var(--hvn-border-light);
 }
@@ -1178,4 +1292,8 @@ select.hvn-form-input {
     .hvn-discount { min-width: calc(50% - 4px); }
     .hvn-ptable input, .hvn-config-input { width: 65px; }
     .hvn-quick-create__form { min-width: auto; width: 100%; }
+    .hvn-guide-buttons { flex-wrap: wrap; }
+    .hvn-guide-btn { min-width: 110px; }
+    .hvn-preset-row__header { flex-direction: column; align-items: flex-start; gap: 8px; }
+    .hvn-preset-row__actions { flex-wrap: wrap; }
 }
