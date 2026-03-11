@@ -272,13 +272,27 @@ function hvn_pricing_calculator_output(array $vars): void
 
     $action = $_REQUEST['action'] ?? 'index';
 
-    // AJAX endpoints
-    if (!empty($_SERVER['HTTP_X_REQUESTED_WITH'])
-        && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest'
-    ) {
+    $ajaxActions = [
+        'get_presets',
+        'save_preset',
+        'delete_preset',
+        'get_currencies',
+        'get_config_options',
+        'save_config_options',
+        'quick_create_group',
+        'assign_config_group',
+    ];
+
+    $isXhr = !empty($_SERVER['HTTP_X_REQUESTED_WITH'])
+        && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest';
+
+    if ($isXhr || in_array($action, $ajaxActions, true)) {
+        while (ob_get_level() > 0) {
+            ob_end_clean();
+        }
         header('Content-Type: application/json; charset=utf-8');
         hvn_pricing_calculator_handleAjax($action);
-        return;
+        exit;
     }
 
     switch ($action) {
@@ -384,17 +398,22 @@ function hvn_pricing_calculator_handleAjax(string $action): void
                 break;
 
             case 'save_config_options':
-                $pricing = json_decode($_POST['pricing'] ?? '[]', true);
+                $pricingRaw       = html_entity_decode($_POST['pricing']        ?? '[]', ENT_QUOTES, 'UTF-8');
+                $hiddenOptionsRaw = html_entity_decode($_POST['hidden_options'] ?? '[]', ENT_QUOTES, 'UTF-8');
+                $hiddenSubsRaw    = html_entity_decode($_POST['hidden_subs']    ?? '[]', ENT_QUOTES, 'UTF-8');
+
+                $pricing = json_decode($pricingRaw, true);
                 if (!is_array($pricing) || empty($pricing)) {
                     echo json_encode(['success' => false, 'error' => 'No pricing data provided.']);
                     return;
                 }
+
                 $count = hvn_pricing_calculator_saveConfigOptionsPricing($pricing);
 
-                $hiddenOptions = json_decode($_POST['hidden_options'] ?? '[]', true);
+                $hiddenOptions = json_decode($hiddenOptionsRaw, true);
                 if (is_array($hiddenOptions)) {
                     foreach ($hiddenOptions as $item) {
-                        $optId = (int) ($item['id'] ?? 0);
+                        $optId  = (int) ($item['id'] ?? 0);
                         $hidden = (int) ($item['hidden'] ?? 0);
                         if ($optId > 0) {
                             Capsule::table('tblproductconfigoptions')
@@ -404,10 +423,10 @@ function hvn_pricing_calculator_handleAjax(string $action): void
                     }
                 }
 
-                $hiddenSubs = json_decode($_POST['hidden_subs'] ?? '[]', true);
+                $hiddenSubs = json_decode($hiddenSubsRaw, true);
                 if (is_array($hiddenSubs)) {
                     foreach ($hiddenSubs as $item) {
-                        $subId = (int) ($item['id'] ?? 0);
+                        $subId  = (int) ($item['id'] ?? 0);
                         $hidden = (int) ($item['hidden'] ?? 0);
                         if ($subId > 0) {
                             Capsule::table('tblproductconfigoptionssub')
@@ -416,7 +435,7 @@ function hvn_pricing_calculator_handleAjax(string $action): void
                         }
                     }
                 }
-
+                
                 logActivity("HVN - Pricing Calculator: Saved {$count} config option pricing records.");
                 echo json_encode(['success' => true, 'count' => $count]);
                 break;

@@ -521,26 +521,54 @@
             },
 
             savePricing: async function () {
-                this.saving=true;
-                var payload=[],ho=[],hs=[];
-                this.groups.forEach(function(g){g.options.forEach(function(opt){
-                    ho.push({id:opt.id,hidden:opt.hidden});
-                    opt.subs.forEach(function(sub){
-                        hs.push({id:sub.id,hidden:sub.hidden});
-                        for(var cid in sub.pricing){if(!sub.pricing[cid])continue;
-                            var rec={sub_id:sub.id,currency_id:parseInt(cid)},p=sub.pricing[cid];
-                            ['monthly','quarterly','semiannually','annually','biennially','triennially',
-                             'msetupfee','qsetupfee','ssetupfee','asetupfee','bsetupfee','tsetupfee'].forEach(function(f){if(p[f]!==undefined)rec[f]=p[f];});
-                            payload.push(rec);
-                        }
+                this.saving = true;
+                var payload = [], ho = [], hs = [];
+                this.groups.forEach(function (g) {
+                    g.options.forEach(function (opt) {
+                        ho.push({ id: opt.id, hidden: opt.hidden });
+                        opt.subs.forEach(function (sub) {
+                            hs.push({ id: sub.id, hidden: sub.hidden });
+                            for (var cid in sub.pricing) {
+                                if (!sub.pricing[cid]) continue;
+                                var rec = { sub_id: sub.id, currency_id: parseInt(cid) },
+                                    p = sub.pricing[cid];
+                                ['monthly','quarterly','semiannually','annually','biennially','triennially',
+                                'msetupfee','qsetupfee','ssetupfee','asetupfee','bsetupfee','tsetupfee']
+                                    .forEach(function (f) { if (p[f] !== undefined) rec[f] = p[f]; });
+                                payload.push(rec);
+                            }
+                        });
                     });
-                });});
-                var r=await Utils.fetchJson(CFG.ajaxUrl+'&action=save_config_options',{
-                    method:'POST',body:new URLSearchParams({pricing:JSON.stringify(payload),hidden_options:JSON.stringify(ho),hidden_subs:JSON.stringify(hs)}),
-                    headers:{'Content-Type':'application/x-www-form-urlencoded'}});
-                if(r.success) Utils.toast('Saved! ('+(r.count||0)+' records)','success');
-                else Utils.toast('Failed: '+(r.error||''),'error');
-                this.saving=false;
+                });
+
+                // Build POST body
+                var postData = {
+                    pricing:        JSON.stringify(payload),
+                    hidden_options: JSON.stringify(ho),
+                    hidden_subs:    JSON.stringify(hs)
+                };
+
+                // Add WHMCS token to prevent redirect (token must be clean value, no "&token=" prefix)
+                var token = CFG.token || '';
+                if (!token) {
+                    // Fallback: grab from hidden input on page
+                    var inp = document.querySelector('input[name="token"]');
+                    if (inp) token = inp.value;
+                }
+                if (token) postData.token = token;
+
+                var r = await Utils.fetchJson(
+                    CFG.ajaxUrl + '&action=save_config_options',
+                    {
+                        method:  'POST',
+                        body:    new URLSearchParams(postData),
+                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+                    }
+                );
+
+                if (r && r.success) Utils.toast('Saved! (' + (r.count || 0) + ' records)', 'success');
+                else Utils.toast('Failed: ' + (r ? r.error || '' : 'No response'), 'error');
+                this.saving = false;
             }
         };
     }
@@ -725,9 +753,10 @@
 
         // Groups loop
         h+='<template x-for="group in groups" :key="group.id"><div class="hvn-optgroup">';
-        h+='<div class="hvn-optgroup__header" @click="group._collapsed=!group._collapsed"><span class="hvn-optgroup__title" x-text="group.name"></span><div class="hvn-optgroup__meta">';
+        h+='<div class="hvn-optgroup__header"><span class="hvn-optgroup__title" x-text="group.name" @click="group._collapsed=!group._collapsed" style="cursor:pointer;flex:1"></span><div class="hvn-optgroup__meta">';
         h+='<template x-if="group.shared_count>1"><span class="hvn-badge hvn-badge--shared" x-text="\'Shared with \'+(group.shared_count-1)+\' product(s)\'"></span></template>';
-        h+='<span x-text="group._collapsed?\'▸\':\'▾\'" style="font-size:14px"></span></div></div>';
+        h+='<a :href="\'configproductoptions.php?action=managegroup&id=\'+group.id" target="_blank" class="hvn-btn hvn-btn--default hvn-btn--xs" @click.stop>↗ Manage</a>';
+        h+='<span x-text="group._collapsed?\'▸\':\'▾\'" style="font-size:14px;cursor:pointer" @click="group._collapsed=!group._collapsed"></span></div></div>';
         h+='<div class="hvn-optgroup__body" x-show="!group._collapsed" x-transition>';
 
         h+='<template x-for="option in group.options" :key="option.id"><div style="margin-bottom:12px">';

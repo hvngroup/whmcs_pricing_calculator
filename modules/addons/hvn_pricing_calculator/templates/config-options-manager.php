@@ -193,19 +193,30 @@ defined("WHMCS") or die("Access Denied");
             <!-- Option Groups -->
             <template x-for="group in groups" :key="group.id">
                 <div class="hvn-optgroup">
-                    <div class="hvn-optgroup__header"
-                         @click="group._collapsed = !group._collapsed">
-                        <span class="hvn-optgroup__title" x-text="group.name"></span>
+                    <div class="hvn-optgroup__header">
+                        <span class="hvn-optgroup__title"
+                            x-text="group.name"
+                            @click="group._collapsed = !group._collapsed"
+                            style="cursor:pointer;flex:1;">
+                        </span>
                         <div class="hvn-optgroup__meta">
                             <template x-if="group.shared_count > 1">
                                 <span class="hvn-badge hvn-badge--shared"
-                                      x-text="'Shared with ' + (group.shared_count - 1) + ' product(s)'">
+                                    x-text="'Shared with ' + (group.shared_count - 1) + ' product(s)'">
                                 </span>
                             </template>
-                            <span x-text="group._collapsed ? '▸' : '▾'" style="font-size:14px;"></span>
+                            <a :href="'configproductoptions.php?action=managegroup&id=' + group.id"
+                            target="_blank"
+                            class="hvn-btn hvn-btn--default hvn-btn--xs"
+                            @click.stop>
+                                ↗ Manage
+                            </a>
+                            <span x-text="group._collapsed ? '▸' : '▾'"
+                                style="font-size:14px;cursor:pointer"
+                                @click="group._collapsed = !group._collapsed">
+                            </span>
                         </div>
                     </div>
-
                     <div class="hvn-optgroup__body" x-show="!group._collapsed" x-transition>
                         <template x-for="option in group.options" :key="option.id">
                             <div style="margin-bottom:12px;">

@@ -109,6 +109,18 @@ function hvn_pricing_buildJsConfig(?array $page): array
         // ignore
     }
 
+    $token = '';
+    if (function_exists('generate_token')) {
+        $raw = generate_token('link');
+        if (preg_match('/[?&]token=([^&]+)/', $raw, $m)) {
+            $token = $m[1];
+        } else {
+            $token = ltrim($raw, '&'); // fallback strip
+        }
+    } elseif (!empty($_SESSION['token'])) {
+        $token = $_SESSION['token'];
+    }
+
     return [
         'page'            => $page,
         'isSettings'      => hvn_pricing_isSettingsPage(),
@@ -121,6 +133,7 @@ function hvn_pricing_buildJsConfig(?array $page): array
         'defaultRoundTo'  => (float) ($settings['defaultRoundTo'] ?? 1),
         'autoInject'      => ($settings['autoInjectToolbar'] ?? 'on') === 'on',
         'ajaxUrl'         => 'addonmodules.php?module=hvn_pricing_calculator',
+        'token'           => $token,
     ];
 }
 
